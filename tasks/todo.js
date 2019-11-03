@@ -3,11 +3,11 @@ const { getUserKey } = require('../userauth');
 const fs = require('fs');
 const path = require('path');
 
-addHook(/^!key *$/, async(m) => {
+addHook('key giver', /^!key *$/, async(m) => {
   const key = await getUserKey(m.author.id);
   m.author.send('User Private Key is `' + key + '`');
 });
-addHook(/^!todo (.*)$/, async(m, a) => {
+addHook('todo add item', /^!todo (.*)$/, async(m, a) => {
   const file = path.join(__dirname, '../data/todo_' + m.author.id);
   if (fs.existsSync(file) && fs.statSync(file).size > 10000) {
     m.channel.send('**`ERROR`** You\'ve exceeded the 10k character limit.');

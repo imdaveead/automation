@@ -1,3 +1,3 @@
 const { addHook } = require('../api');
 
-addHook(/^!ping *$/, (m, a) => m.channel.send('[pong]'));
+addHook('ping', /^!ping *$/, (m, a) => m.channel.send('[pong]'));

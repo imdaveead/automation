@@ -9,11 +9,20 @@ client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-fs.readdirSync('tasks').forEach((task) => require('./tasks/' + task))
+if (process.argv[2]) {
+  require('./' + process.argv[2]);
+} else {
+  fs.readdirSync('tasks').forEach((task) => require('./tasks/' + task))
+}
 
 client.on('message', msg => {
   // ignore other messages
-  if (msg.author.bot || !(msg.content.startsWith('!') || msg.content.startsWith('#'))) return;
+  if (msg.author.bot || !(msg.content.startsWith('!') || msg.content.startsWith('#'))) {
+    if (!msg.author.bot && msg.mentions.members.find(x => x.id === client.user.id)) {
+      msg.react('👋');
+    }
+    return;
+  }
   // check if it uses the delete flag #, and force the ! symbol back
   let del = msg.content[0] === '#';
   msg.content = '!' + msg.content.substr(1);
@@ -25,7 +34,11 @@ client.on('message', msg => {
     const match = msg.content.match(hook.regex);
     if (match) {
       // call it in form (message, regexGroup1, regexGroup2, ...)
-      hook.handler(msg, ...match.slice(1));
+      try {
+        hook.handler(msg, ...match.slice(1));
+      } catch(e) {
+        msg.channel.send(`**\`${e.name}\`** ${e.message} (Thrown from ${hook.name})`);
+      }
       ran = true;
     }
   });

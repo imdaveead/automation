@@ -11,6 +11,8 @@
   "dependencies": {
     "change-case": "^3.1.0",
     "discord.js": "^11.5.1",
+    "expr-eval": "^2.0.2",
+    "node-cache": "^5.0.1",
     "node-fetch": "^2.6.0",
     "uuid": "^3.3.3"
   }

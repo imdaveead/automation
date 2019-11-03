@@ -38,10 +38,14 @@ async function currencyConvert(msg, from, to, amount, silentErrors) {
 }
 
 // !currency <from> <to>
-addHook(/^!currency +([^ ]+) +([^ ]+) *$/, (m, a, b) => currencyConvert(m, a, b, 1));
+addHook('currency1', /^!currency +([^ ]+) +([^ ]+) *$/, (m, a, b) => currencyConvert(m, a, b, 1));
 // !currency <from> <to> <amount>
-addHook(/^!currency +([^ ]+) +([^ ]+) +([^ ]+) *$/, (m, a, b, amount) => currencyConvert(m, a, b, parseFloat(amount)));
+addHook('currency2', /^!currency +([^ ]+) +([^ ]+) +([^ ]+) *$/, (m, a, b, amount) => currencyConvert(m, a, b, parseFloat(amount)));
+// !cc <from> <to>
+addHook('currency3', /^!cc +([^ ]+) +([^ ]+) *$/, (m, a, b) => currencyConvert(m, a, b, 1));
+// !cc <from> <to> <amount>
+addHook('currency4', /^!cc +([^ ]+) +([^ ]+) +([^ ]+) *$/, (m, a, b, amount) => currencyConvert(m, a, b, parseFloat(amount)));
 // !<a><b> <amount>
-addHook(/^!(...)(...) +([^ ]+)$/, (m, a, b, amount) => currencyConvert(m, a, b, parseFloat(amount), true));
+addHook('currency5', /^!(...)(...) +([^ ]+)$/, (m, a, b, amount) => currencyConvert(m, a, b, parseFloat(amount), true));
 // !<a><b>
-addHook(/^!(...)(...) *$/, (m, a, b, amount) => currencyConvert(m, a, b, 1, true));
+addHook('currency6', /^!(...)(...) *$/, (m, a, b, amount) => currencyConvert(m, a, b, 1, true));
