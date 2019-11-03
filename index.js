@@ -27,6 +27,11 @@ client.on('message', msg => {
   let del = msg.content[0] === '#';
   msg.content = '!' + msg.content.substr(1);
 
+  if (msg.author.id === '244905301059436545' && msg.channel.id === '604909697308426240') {
+    msg.channel.send('no dave, goto <#522578061435076608><#522578061435076608><#522578061435076608>');
+    return;
+  }
+
   // find and run a hook
   let ran = false;
   api.hooks.forEach((hook) => {
