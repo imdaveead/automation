@@ -15,7 +15,7 @@ if (process.argv[2]) {
   fs.readdirSync('tasks').forEach((task) => require('./tasks/' + task))
 }
 
-client.on('message', msg => {
+client.on('message', async(msg) => {
   // ignore other messages
   if (msg.author.bot || !(msg.content.startsWith('!') || msg.content.startsWith('#'))) {
     if (!msg.author.bot && msg.mentions.members.find(x => x.id === client.user.id)) {
@@ -28,7 +28,9 @@ client.on('message', msg => {
   msg.content = '!' + msg.content.substr(1);
 
   if (msg.author.id === '244905301059436545' && msg.channel.id === '604909697308426240') {
-    msg.channel.send('no dave, goto <#522578061435076608><#522578061435076608><#522578061435076608>');
+    const x = await msg.channel.send('no dave, goto <#522578061435076608><#522578061435076608><#522578061435076608>');
+    msg.delete();
+    x.delete(100000);
     return;
   }
 
