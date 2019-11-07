@@ -16,4 +16,6 @@ Commands:
                                 your secret key that is obtained with !key.
 !key                           |gets your key.
 !rl                            |<dave only> [WIP] reloads and updates bot
+!cf <temp>                     |convert temperature
+!fc <temp>                     |convert temperature
 ```

@@ -1,5 +1,4 @@
 const { addHook } = require('../api');
-const client = require('../client');
 const fetch = require('node-fetch');
 const cache = new (require('node-cache'))({ stdTTL: 21600 });
 
