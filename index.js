@@ -28,61 +28,80 @@ const daveCommandWhitelist = [
 ];
 
 client.on('message', async(msg) => {
-  // No Emojis >:(
-  let emojis = [];
-  let matches = [msg.content.match(/\:[^ ]+\:/g), msg.content.match(/[\u{1f300}-\u{1f5ff}\u{1f900}-\u{1f9ff}\u{1f600}-\u{1f64f}\u{1f680}-\u{1f6ff}\u{2600}-\u{26ff}\u{2700}-\u{27bf}\u{1f1e6}-\u{1f1ff}\u{1f191}-\u{1f251}\u{1f004}\u{1f0cf}\u{1f170}-\u{1f171}\u{1f17e}-\u{1f17f}\u{1f18e}\u{3030}\u{2b50}\u{2b55}\u{2934}-\u{2935}\u{2b05}-\u{2b07}\u{2b1b}-\u{2b1c}\u{3297}\u{3299}\u{303d}\u{00a9}\u{00ae}\u{2122}\u{23f3}\u{24c2}\u{23e9}-\u{23ef}\u{25b6}\u{23f8}-\u{23fa}]/ug)];
-  if (matches[0] !== null && matches[1] !== null) {
-    emojis = matches[0];
-    emojis.concat(matches[1]);
-  } else if (matches[0] !== null && matches[1] == null) {
-    emojis = matches[0]
-  } else if (matches[0] == null && matches[1] !== null) {
-    emojis = matches[1];
-  }
+  if (
+    msg.guild.id === "453211769423265802" &&
+    !(
+      msg.author.id === "244905301059436545" &&
+      msg.channel.id === "522578061435076608"
+    )
+  ) {
+    // No Emojis >:(
+    let emojis = [];
+    let matches = [
+      msg.content.match(/\:[^ ]+\:/g),
+      msg.content.match(
+        /[\u{1f300}-\u{1f5ff}\u{1f900}-\u{1f9ff}\u{1f600}-\u{1f64f}\u{1f680}-\u{1f6ff}\u{2600}-\u{26ff}\u{2700}-\u{27bf}\u{1f1e6}-\u{1f1ff}\u{1f191}-\u{1f251}\u{1f004}\u{1f0cf}\u{1f170}-\u{1f171}\u{1f17e}-\u{1f17f}\u{1f18e}\u{3030}\u{2b50}\u{2b55}\u{2934}-\u{2935}\u{2b05}-\u{2b07}\u{2b1b}-\u{2b1c}\u{3297}\u{3299}\u{303d}\u{00a9}\u{00ae}\u{2122}\u{23f3}\u{24c2}\u{23e9}-\u{23ef}\u{25b6}\u{23f8}-\u{23fa}]/gu
+      )
+    ];
+    if (matches[0] !== null && matches[1] !== null) {
+      emojis = matches[0];
+      emojis.concat(matches[1]);
+    } else if (matches[0] !== null && matches[1] == null) {
+      emojis = matches[0];
+    } else if (matches[0] == null && matches[1] !== null) {
+      emojis = matches[1];
+    }
 
-  if (emojis.length > 1 && !msg.author.bot) {
-    msg.delete();
-    const x = await msg.channel.send('1 emoji per message :angry:');
-    x.delete(3000);
-    return;
-  }
+    if (emojis.length > 3 && !msg.author.bot) {
+      msg.delete();
+      const x = await msg.channel.send(":anger: too many emotes");
+      x.delete(3000);
+      return;
+    }
 
-  /* Spamming rules
-  up to 10 messages in 15 seconds
-  up to 3 messages in 3 seconds
-  */
- if (spam[msg.author.id]==null) {
-    spam[msg.author.id] = [];
-    spam[msg.author.id+'fast'] = [];
-    spam[msg.author.id+'remind'] = 0;
-  }
-  spam[msg.author.id].push(msg.createdTimestamp);
-  spam[msg.author.id+'fast'].push(msg.createdTimestamp);
-  for (let time of spam[msg.author.id]) {
-    if (msg.createdTimestamp - time > 15000) {
-      spam[msg.author.id].shift();
+    /* Spamming rules
+    up to 10 messages in 15 seconds
+    up to 3 messages in 3 seconds
+    */
+    if (spam[msg.author.id] == null) {
+      spam[msg.author.id] = [];
+      spam[msg.author.id + "fast"] = [];
+      spam[msg.author.id + "remind"] = 0;
     }
-  }
-  for (let time of spam[msg.author.id+'fast']) {
-    if (msg.createdTimestamp - time > 3000) {
-      spam[msg.author.id+'fast'].shift();
+    spam[msg.author.id].push(msg.createdTimestamp);
+    spam[msg.author.id + "fast"].push(msg.createdTimestamp);
+    for (let time of spam[msg.author.id]) {
+      if (msg.createdTimestamp - time > 15000) {
+        spam[msg.author.id].shift();
+      }
     }
-  }
-  if (spam[msg.author.id].length > 10) {
-    msg.delete();
-    if (new Date().getTime() - spam[msg.author.id+'remind'] > 1500) { // Don't spam the spam reminders, wait atleast 1500ms between reminders
-      spam[msg.author.id+'remind'] = new Date().getTime();
-      const x = await msg.channel.send('Too fast m8 `10 messages per 15 seconds`');
-      x.delete(3000);
+    for (let time of spam[msg.author.id + "fast"]) {
+      if (msg.createdTimestamp - time > 3000) {
+        spam[msg.author.id + "fast"].shift();
+      }
     }
-    return;
-  } else if (spam[msg.author.id+'fast'].length > 3) {
-    msg.delete();
-    if (new Date().getTime() - spam[msg.author.id+'remind'] > 1500) {
-      spam[msg.author.id+'remind'] = new Date().getTime();
-      const x = await msg.channel.send('Too fast m8 `3 messages per 3 seconds`');
-      x.delete(3000);
-    };
+    if (spam[msg.author.id].length > 10) {
+      msg.delete();
+      if (new Date().getTime() - spam[msg.author.id + "remind"] > 1500) {
+        // Don't spam the spam reminders, wait atleast 1500ms between reminders
+        spam[msg.author.id + "remind"] = new Date().getTime();
+        const x = await msg.channel.send(
+          "Too fast m8 `10 messages per 15 seconds`"
+        );
+        x.delete(3000);
+      }
+      return;
+    } else if (spam[msg.author.id + "fast"].length > 3) {
+      msg.delete();
+      if (new Date().getTime() - spam[msg.author.id + "remind"] > 1500) {
+        spam[msg.author.id + "remind"] = new Date().getTime();
+        const x = await msg.channel.send(
+          "Too fast m8 `3 messages per 3 seconds`"
+        );
+        x.delete(3000);
+      }
+      return;
+    }
   }
 
   // ignore other messages
@@ -98,7 +117,7 @@ client.on('message', async(msg) => {
       !msg.author.bot &&
       msg.mentions.members.find(x => x.id === client.user.id)
     ) {
-      msg.react("👋");
+      msg.react("ht");
     }
     return;
   }
