@@ -2,6 +2,8 @@ const fs = require('fs');
 
 if(!fs.existsSync('data')) fs.mkdirSync('data');
 
+let spam = {};
+
 const client = require('./client');
 const api = require('./api');
 
@@ -35,6 +37,43 @@ client.on('message', async(msg) => {
     return;
   }
 
+  /* Spamming rules
+  up to 10 messages in 15 seconds
+  up to 3 messages in 3 seconds
+  */
+ if (spam[msg.author.id]==null) {
+    spam[msg.author.id] = [];
+    spam[msg.author.id+'fast'] = [];
+    spam[msg.author.id+'remind'] = 0;
+  }
+  spam[msg.author.id].push(msg.createdTimestamp);
+  spam[msg.author.id+'fast'].push(msg.createdTimestamp);
+  for (let time of spam[msg.author.id]) {
+    if (msg.createdTimestamp - time > 15000) {
+      spam[msg.author.id].shift();
+    }
+  }
+  for (let time of spam[msg.author.id+'fast']) {
+    if (msg.createdTimestamp - time > 3000) {
+      spam[msg.author.id+'fast'].shift();
+    }
+  }
+  if (spam[msg.author.id].length > 10) {
+    msg.delete();
+    if (new Date().getTime() - spam[msg.author.id+'remind'] > 1500) { // Don't spam the spam reminders, wait atleast 1500ms between reminders
+      spam[msg.author.id+'remind'] = new Date().getTime();
+      const x = await msg.channel.send('Too fast m8 `10 messages per 15 seconds`');
+      x.delete(3000);
+    }
+    return;
+  } else if (spam[msg.author.id+'fast'].length > 3) {
+    msg.delete();
+    if (new Date().getTime() - spam[msg.author.id+'remind'] > 1500) {
+      spam[msg.author.id+'remind'] = new Date().getTime();
+      const x = await msg.channel.send('Too fast m8 `3 messages per 3 seconds`');
+      x.delete(3000);
+    };
+  }
 
   // ignore other messages
   if (msg.author.bot || !(msg.content.startsWith('!') || msg.content.startsWith('#'))) {
