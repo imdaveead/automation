@@ -2,13 +2,13 @@ const { addHook } = require('../api');
 const uuid = require('uuid/v4');
 
 function getRandomFloat(min, max) {
-    return Math.random() * (max - min) + min;
+  return Math.random() * (max - min) + min;
 }
 
 function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 addHook('uuid generator', /!uuid *$/, (m) => m.channel.send(`\`${uuid()}\``));

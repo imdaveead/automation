@@ -18,4 +18,5 @@ Commands:
 !rl                            |<dave only> [WIP] reloads and updates bot
 !cf <temp>                     |convert temperature
 !fc <temp>                     |convert temperature
+!paint <color>                 |name painter bot
 ```
