@@ -2,7 +2,10 @@ const Color = require('color');
 const { addHook } = require('../api');
 
 addHook('name painter', /!paint .*/, async(msg) => {
-  const args = msg.content.split(' ');
+  // guild exclusion
+  if (msg.guild.id === "516410163230539837") { return; }
+
+  const args = msg.content.split(" ");
   args.shift();
 
   if (args.length === 0) {
