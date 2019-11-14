@@ -43,4 +43,4 @@ async function die(m, target, time) {
 
 addHook('suicide', /!suicide *$/, (m) => die(m, m.author.id, 60 * 1000));
 addHook('silencer gun 1', /!die *<@!?(.*)>$/, (m, target) => die(m, target, 30 * 1000));
-addHook('silencer gun 2', /!die *<@!?(.*)> ([0-9])$/, (m, target, timestr) => die(m, target, parseInt(timestr) * 1000));
+addHook('silencer gun 2', /!die *<@!?(.*)> +([0-9]+)$/, (m, target, timestr) => die(m, target, parseInt(timestr) * 1000));
