@@ -15,24 +15,51 @@ if (process.argv[2]) {
   fs.readdirSync('tasks').forEach((task) => require('./tasks/' + task))
 }
 
+let match;
+function doMatchThing(content) {
+  match = content.match(/^(💢 *)(!|#)/);
+  return !!match;
+}
+
+const daveCommandWhitelist = [
+  /^!die/
+];
+
 client.on('message', async(msg) => {
   // ignore other messages
-  if (msg.author.bot || !(msg.content.startsWith('!') || msg.content.startsWith('#'))) {
-    if (!msg.author.bot && msg.mentions.members.find(x => x.id === client.user.id)) {
-      msg.react('👋');
+  if (
+    msg.author.bot ||
+    !(
+      msg.content.startsWith("!") ||
+      msg.content.startsWith("#") ||
+      (msg.author.id === "244905301059436545" && doMatchThing(msg.content))
+    )
+  ) {
+    if (
+      !msg.author.bot &&
+      msg.mentions.members.find(x => x.id === client.user.id)
+    ) {
+      msg.react("👋");
     }
     return;
   }
+
+  if (msg.author.id === '244905301059436545' && msg.channel.id === '604909697308426240') {
+    if (match) {
+      msg.content = msg.content.substring(match[1].length);
+    } else {
+      if (!daveCommandWhitelist.find(x => msg.content.match(x))) {
+        const x = await msg.channel.send("no dave, goto <#522578061435076608>");
+        msg.delete();
+        x.delete(100000);
+        return;
+      }
+    }
+  }
+
   // check if it uses the delete flag #, and force the ! symbol back
   let del = msg.content[0] === '#';
   msg.content = '!' + msg.content.substr(1);
-
-  if (msg.author.id === '244905301059436545' && msg.channel.id === '604909697308426240') {
-    const x = await msg.channel.send('no dave, goto <#522578061435076608><#522578061435076608><#522578061435076608>');
-    msg.delete();
-    x.delete(100000);
-    return;
-  }
 
   // find and run a hook
   let ran = false;
