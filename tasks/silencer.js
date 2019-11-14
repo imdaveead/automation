@@ -1,6 +1,7 @@
 const { addHook } = require("../api");
 
 async function die(m, target, time) {
+  if (m.guild.id !== "453211769423265802") return;
   time = Math.min(time, 60 * 60 * 1000);
   if (
     m.author.id !== "244905301059436545" &&
