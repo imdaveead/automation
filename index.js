@@ -23,9 +23,9 @@ function doMatchThing(content) {
   return !!match;
 }
 
-const daveCommandWhitelist = [
-  /^!(die|suicide)/
-];
+// const daveCommandWhitelist = [
+//   /^!(die|suicide)/
+// ];
 
 client.on('message', async(msg) => {
   if (
@@ -111,7 +111,7 @@ client.on('message', async(msg) => {
     !(
       msg.content.startsWith("!") ||
       msg.content.startsWith("#") ||
-      (msg.author.id === "244905301059436545" && doMatchThing(msg.content))
+      // (msg.author.id === "244905301059436545" && doMatchThing(msg.content))
     )
   ) {
     if (
@@ -123,18 +123,18 @@ client.on('message', async(msg) => {
     return;
   }
 
-  if (msg.author.id === '244905301059436545' && msg.channel.id === '604909697308426240') {
-    if (match) {
-      msg.content = msg.content.substring(match[1].length);
-    } else {
-      if (!daveCommandWhitelist.find(x => msg.content.match(x))) {
-        const x = await msg.channel.send("no dave, goto <#522578061435076608>");
-        msg.delete();
-        x.delete(100000);
-        return;
-      }
-    }
-  }
+  // if (msg.author.id === '244905301059436545' && msg.channel.id === '604909697308426240') {
+  //   if (match) {
+  //     msg.content = msg.content.substring(match[1].length);
+  //   } else {
+  //     if (!daveCommandWhitelist.find(x => msg.content.match(x))) {
+  //       const x = await msg.channel.send("no dave, goto <#522578061435076608>");
+  //       msg.delete();
+  //       x.delete(100000);
+  //       return;
+  //     }
+  //   }
+  // }
 
   // check if it uses the delete flag #, and force the ! symbol back
   let del = msg.content[0] === '#';
