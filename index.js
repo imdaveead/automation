@@ -110,7 +110,7 @@ client.on('message', async(msg) => {
     msg.author.bot ||
     !(
       msg.content.startsWith("!") ||
-      msg.content.startsWith("#") ||
+      msg.content.startsWith("#")
       // (msg.author.id === "244905301059436545" && doMatchThing(msg.content))
     )
   ) {
