@@ -24,7 +24,7 @@ function doMatchThing(content) {
 }
 
 const daveCommandWhitelist = [
-  /^!die/
+  /^!(die|suicide)/
 ];
 
 client.on('message', async(msg) => {
