@@ -5,6 +5,7 @@ async function die(m, target, time) {
   time = Math.min(time, 60 * 60 * 1000);
   if (
     m.author.id !== "244905301059436545" &&
+    m.author.id !== "216346350936260611" &&
     m.author.id !== target
   ) {
     return;
