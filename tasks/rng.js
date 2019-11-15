@@ -22,3 +22,8 @@ addHook('random int generator', /!rng *(i *)?([0-9]+)? *([0-9]+)? *$/, (m, _, a,
   const hi = (b === undefined ? (a !== undefined ? parseInt(a) : 100 ) : parseInt(b))
   m.channel.send(`\`=${getRandomInt(low, hi)}\``);
 });
+
+addHook('coin flipper', /!coin *$/, (m,) => {
+  const side = Math.random() < (1/6000);
+  m.channel.send(`coin lands ${side ? 'on the side' : (Math.random() > 0.5 ? 'heads' : 'tails')}`);
+});
