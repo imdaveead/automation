@@ -6,6 +6,7 @@ async function die(m, target, time) {
   if (
     m.author.id !== "244905301059436545" &&
     m.author.id !== "216346350936260611" &&
+    m.author.id !== "576462139909210143" &&
     m.author.id !== target
   ) {
     return;
