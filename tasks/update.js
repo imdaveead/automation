@@ -13,5 +13,5 @@ child = exec('sh /home/dave/app/automation/update.sh',
              console.log('exec error: ' + error);
         }
     });
- child();
+    child();
 });

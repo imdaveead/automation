@@ -32,7 +32,6 @@ client.on('message', async(msg) => {
     msg.guild.id === "453211769423265802" &&
     !(
       msg.author.id === "244905301059436545" &&
-      msg.author.id === "576462139909210143" &&
       msg.channel.id === "522578061435076608"
     )
   ) {
