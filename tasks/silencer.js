@@ -6,7 +6,7 @@ const roles = {
 }
 
 async function die(m, target, time) {
-  if (m.guild.id !== "453211769423265802" && m.guild.id === "677622043813871639") return;
+  if (m.guild.id !== "453211769423265802" && m.guild.id !== "677622043813871639") return;
   time = Math.min(time, 2 * 60 * 60 * 1000);
   if(target === undefined) {
     m.channel.send(`🔫 you need to actually target someone`);
@@ -55,6 +55,6 @@ async function die(m, target, time) {
 addHook('suicide 1', /!suicide *$/, (m) => die(m, m.author.id, 60 * 1000));
 addHook('suicide 2', /!suicide +([0-9]+)$/, (m, timestr) => die(m, m.author.id,  parseInt(timestr) * 1000));
 addHook('silencer gun 1', /!die *$/, (m) => die(m, undefined, 30 * 1000));
-addHook('silencer gun 2', /!die *[^<].*$/, (m) => die(m, 'theydontexist', 30 * 1000));
+addHook('silencer gun 2', /!die *[^< ].*$/, (m) => die(m, 'theydontexist', 30 * 1000));
 addHook('silencer gun 3', /!die *<@!?(.*)>$/, (m, target) => die(m, target, 30 * 1000));
 addHook('silencer gun 4', /!die *<@!?(.*)> +([0-9]+)$/, (m, target, timestr) => die(m, target, parseInt(timestr) * 1000));
