@@ -1,11 +1,18 @@
 const { addHook } = require("../api");
 
+const roles = {
+  "453211769423265802": '644649637063557143'
+}
+
 async function die(m, target, time) {
-  if (m.guild.id !== "453211769423265802") return;
-  time = Math.min(time, 60 * 60 * 1000);
+  if (m.guild.id !== "453211769423265802" && m.guild.id === "677622043813871639") return;
+  time = Math.min(time, 2 * 60 * 60 * 1000);
+  if(target === undefined) {
+    m.channel.send(`🔫 you need to actually target someone`);
+    return;
+  }
   if (
     m.author.id !== "244905301059436545" &&
-    m.author.id !== "216346350936260611" &&
     m.author.id !== "576462139909210143" &&
     m.author.id !== target
   ) {
@@ -17,32 +24,36 @@ async function die(m, target, time) {
     return;
   }
   if (member) {
-    if (member.roles.find(x => x.id === "644649637063557143")) {
-      m.channel.send(`\\🔫 already silenced`);
+    const roleId = roles[m.guild.id]
+    if (member.roles.find(x => x.id === roleId)) {
+      m.channel.send(`🔫 already silenced`);
       return;
     }
     try {
-      await member.addRole("644649637063557143");
+      await member.addRole(roleId);
       setTimeout(() => {
-        member.removeRole("644649637063557143");
+        member.removeRole(roleId);
       }, time);
       if (m.author.id === target) {
         m.channel.send(
-          `\\🔫\\🔫\\🔫\\🔫 silenced yourself. :fire::fire::fire:    (expires ${(time/1000).toFixed(0)} seconds)`
+          `🔫🔫🔫🔫 silenced yourself. :fire::fire::fire:    (expires ${(time/1000).toFixed(0)} seconds)`
         );
       } else {
         m.channel.send(
-          `\\🔫\\🔫\\🔫\\🔫 silenced ${member.displayName} (expires ${(time/1000).toFixed(0)} seconds)`
+          `🔫🔫🔫🔫 silenced ${member.displayName} (expires ${(time/1000).toFixed(0)} seconds)`
         );
       }
     } catch (error) {
-      m.channel.send(`\\🔫 bullet missed, check permissions.`);
+      m.channel.send(`🔫 bullet missed, check permissions.`);
     }
   } else {
-    m.channel.send(`\\🔫 couldn't find user`);
+    m.channel.send(`🔫 they don't exist`);
   }
 }
 
-addHook('suicide', /!suicide *$/, (m) => die(m, m.author.id, 60 * 1000));
-addHook('silencer gun 1', /!die *<@!?(.*)>$/, (m, target) => die(m, target, 30 * 1000));
-addHook('silencer gun 2', /!die *<@!?(.*)> +([0-9]+)$/, (m, target, timestr) => die(m, target, parseInt(timestr) * 1000));
+addHook('suicide 1', /!suicide *$/, (m) => die(m, m.author.id, 60 * 1000));
+addHook('suicide 2', /!suicide +([0-9]+)$/, (m, timestr) => die(m, m.author.id,  parseInt(timestr) * 1000));
+addHook('silencer gun 1', /!die *$/, (m) => die(m, undefined, 30 * 1000));
+addHook('silencer gun 2', /!die *[^<]$/, (m) => die(m, 'theydontexist', 30 * 1000));
+addHook('silencer gun 3', /!die *<@!?(.*)>$/, (m, target) => die(m, target, 30 * 1000));
+addHook('silencer gun 4', /!die *<@!?(.*)> +([0-9]+)$/, (m, target, timestr) => die(m, target, parseInt(timestr) * 1000));
