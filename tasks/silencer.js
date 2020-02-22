@@ -7,7 +7,7 @@ const roles = {
 
 async function die(m, target, time) {
   if (m.guild.id !== "453211769423265802" && m.guild.id !== "677622043813871639") return;
-  time = Math.min(time, 2 * 60 * 60 * 1000);
+  time = Math.min(time, 24 * 60 * 60 * 1000);
   if(target === undefined) {
     m.channel.send(`🔫 you need to actually target someone`);
     return;
