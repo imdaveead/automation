@@ -67,15 +67,15 @@ function writeConfig(id, data) {
   fs.writeJson('data/' + id + '.guild', data);
 }
 
-const features = {
-  core: loadFeature('core'),
-  ping: loadFeature('ping'),
-  currency: loadFeature('currency'),
-  rng: loadFeature('rng'),
-}
+const features = Object.fromEntries(fs.readdirSync(path.join(__dirname, 'features')).map((name) => {
+  name = name.replace('.js', '');
+  return [name, loadFeature(name)];
+}));
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
+
+  client.user.setActivity('with my free will.');
 });
 
 client.on('message', async(msg) => {
