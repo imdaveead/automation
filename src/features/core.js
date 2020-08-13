@@ -51,10 +51,21 @@ CommandHandler(
         } else {
           if (config.loadedFeatures.includes(feature)) {
             config.loadedFeatures = config.loadedFeatures.filter(x => x !== feature);
+            writeConfig();
             return `Disabled \`${feature.replace(/\n/g, '').replace(/`/g, '\\\\`')}\``
           } else {
             return `\`${feature.replace(/\n/g, '').replace(/`/g, '\\\\`')}\` is already disabled.`
           }
+        }
+      } else if (feature === '*') {
+        if(change === '+') {
+          config.loadedFeatures = Object.keys(features);
+          writeConfig();
+          return `Enabled All Features`
+        } else {
+          config.loadedFeatures = ['core'];
+          writeConfig();
+          return `Enabled All Features`
         }
       } else {
         return `Feature \`${feature.replace(/\n/g, '').replace(/`/g, '\\\\`')}\` does not exist.`
