@@ -1,4 +1,3 @@
-const { addHook } = require('../api');
 const fetch = require('node-fetch');
 const cache = new (require('node-cache'))({ stdTTL: 21600 });
 
@@ -10,7 +9,7 @@ async function getCurrencyData() {
   return currencyData;
 }
 
-async function currencyConvert(msg, from, to, amount, silentErrors) {
+async function currencyConvert({ msg }, from, to, amount, silentErrors) {
   const currencyData = await getCurrencyData();
 
   if (!currencyData.rates[from.toUpperCase()]) {
@@ -36,15 +35,16 @@ async function currencyConvert(msg, from, to, amount, silentErrors) {
   msg.channel.send(`${amount.toFixed(2)} ${from.toUpperCase()} currently exchanges for **${target.toFixed(2)} ${to.toUpperCase()}**.`)
 }
 
-// !currency <from> <to>
-addHook('currency1', /^!currency +([^ ]+) +([^ ]+) *$/, (m, a, b) => currencyConvert(m, a, b, 1));
-// !currency <from> <to> <amount>
-addHook('currency2', /^!currency +([^ ]+) +([^ ]+) +([^ ]+) *$/, (m, a, b, amount) => currencyConvert(m, a, b, parseFloat(amount)));
-// !cc <from> <to>
-addHook('currency3', /^!cc +([^ ]+) +([^ ]+) *$/, (m, a, b) => currencyConvert(m, a, b, 1));
-// !cc <from> <to> <amount>
-addHook('currency4', /^!cc +([^ ]+) +([^ ]+) +([^ ]+) *$/, (m, a, b, amount) => currencyConvert(m, a, b, parseFloat(amount)));
 // !<a><b> <amount>
-addHook('currency5', /^!(...)(...) +([^ ]+)$/, (m, a, b, amount) => currencyConvert(m, a, b, parseFloat(amount), true));
+CommandHandler(/^([A-Za-z]{3})\s*2?\s*([A-Za-z]{3}) +([^ ]+)$/, (m, a, b, amount) => currencyConvert(m, a, b, parseFloat(amount), true));
 // !<a><b>
-addHook('currency6', /^!(...)(...) *$/, (m, a, b, amount) => currencyConvert(m, a, b, 1, true));
+CommandHandler(/^([A-Za-z]{3})\s*2?\s*([A-Za-z]{3}) *$/, (m, a, b) => currencyConvert(m, a, b, 1, true));
+
+DocCommand({
+  usage: '<currency from> <currency to> [amount]',
+  desc: 'Converts currency amounts using fixer.io\'s apis.',
+  examples: [
+    'usd eur 15',
+    'nzdbtc 12000',
+  ]
+});

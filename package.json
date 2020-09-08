@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@reverse/compact": "^1.1.4",
+    "@reverse/random": "^1.0.12",
     "change-case": "^3.1.0",
     "color": "^3.1.2",
     "discord.js": "^11.5.1",
@@ -16,6 +18,9 @@
     "fs-extra": "^9.0.1",
     "node-cache": "^5.1.2",
     "node-fetch": "^2.6.0",
+    "puppeteer": "^5.2.1",
+    "timezones.json": "^1.5.2",
+    "typescript": "^4.0.2",
     "uuid": "^8.3.0"
   }
 }
