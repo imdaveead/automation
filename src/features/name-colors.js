@@ -65,3 +65,14 @@ CommandHandler(/^(paint|color).*/, async({ msg }) => {
     msg.channel.send(`\`ERROR\`: Could not assign role. check permission data.`);
   }
 })
+
+DocCommand({
+  usage: 'paint <color>',
+  desc: 'Set your name color. Can also use `{prefix}color`',
+  examples: [
+    'paint #ff55aa',
+    'paint rgb(120,255,255)',
+    'color rebeccapurple',
+    'color fff000',
+  ]
+})
