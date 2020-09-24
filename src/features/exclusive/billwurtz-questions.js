@@ -19,7 +19,7 @@ async function getNewQuestions() {
   const page = await browser.newPage();
   await page.goto('https://billwurtz.com/questions/questions.html');
   
-  await page.setViewport({ width: 800, height: 10000 })
+  await page.setViewport({ width: 800, height: 50000 })
 
   const lastQuestion = await page.evaluate('document.querySelectorAll("h3")[0].querySelector("dco").innerHTML.replace(/&nbsp; \\n/, " ")');
   
@@ -31,8 +31,14 @@ async function getNewQuestions() {
   if (lastQuestion !== savedLastQuestion) {
     const js = `
       (() => {
+        const anchorDate = new Date('${savedLastQuestion.replace(/\'/g, '\\\'')}');
         const h3 = [...document.querySelectorAll('h3')].filter(x => x.querySelector('dco'));
-        const index = h3.findIndex(x => x.querySelector('dco').innerHTML.replace(/&nbsp; \\n/, " ").trim() === '${savedLastQuestion.replace(/\'/g, '\\\'')}');
+        const index = h3.findIndex(x => {
+          return new Date(x.querySelector('dco').innerHTML.replace(/(&nbsp;|\\s|\\n)+/, " ").trim()) <= anchorDate;
+        });
+        if (!index) {
+          // edge case: no anchor question, find nearest.
+        }
         const questionsToGet = h3.slice(0, index)
         return questionsToGet.map((x, i) => {
           const links = [];
@@ -58,8 +64,10 @@ async function getNewQuestions() {
 
     for (let i = 0; i < questionRanges.length; i++) {
       const range = questionRanges[i];
-      const dateMatch = /(.?.)\.(.?.)\.(.?.)&nbsp; ?\n(.?.):(.?.) (am|pm)/.exec(range.dco);
-      const questionNumber =
+      const dateMatch = /(.?.)\.(.?.)\.(.?.)\s*(?:&nbsp;)*\s*\n?(.?.):(.?.)\s*(?:&nbsp;)*\s*\n?(am|pm)/.exec(range.dco);
+      let questionNumber;
+      try {
+        questionNumber =
         "20"
         + dateMatch[3]
         + dateMatch[1].padStart(2, "0")
@@ -70,6 +78,10 @@ async function getNewQuestions() {
             : ((parseInt(dateMatch[4]) % 12) + 12).toString()
           ).padStart(2, "0")
         + dateMatch[5];
+      } catch (error) {
+        console.log('Choking on question:', range);
+        continue;
+      }
       await page.screenshot({
         path: 'data/questions/' + questionNumber + '.png',
         clip: {

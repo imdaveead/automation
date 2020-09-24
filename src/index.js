@@ -128,10 +128,8 @@ async function getGuildConfig(guild) {
       config = await fs.readJson('data/' + guild.id + '.guild');
     } else {
       config = {
-        prefix: '!',
-        loadedFeatures: [
-          ...categories.core
-        ]
+        prefix: '$',
+        loadedFeatures: []
       }
     }
     cache.set('data/' + guild.id + '.guild', config);

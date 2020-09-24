@@ -65,8 +65,8 @@ function trimCode(code) {
 
 CommandHandler(
   /^eval\s+((?:--danger|-[dD])\s+)?(?:```(?:(?:js|javascript|ts|typescript|)\n)?((?:.|\n)+)```|((?:.|\n)+))$/,
-  Cooldown(10),
-  async({ msg }, danger, code1, code2) => {
+  Cooldown(6),
+  async({ msg, client, config, writeConfig }, danger, code1, code2) => {
 
   const parsed = ts.createSourceFile('discord.ts', code1 || code2, ts.ScriptTarget.ES5, true);
   const transformed = ts.transform(
@@ -112,7 +112,7 @@ CommandHandler(
           : [
           errorCode === 0
             ? `<:coolwoah:717684437508161546> Successfully Run`
-            : `<:angry_pink:729408548089495643> Error when running your code.`,
+            : `<:angry_pink:753969564408086600> Error when running your code.`,
           data === ''
             ? '\n*[no program output]*'
             : `\`\`\`typescript\n${trimCode(data)}\`\`\``,
@@ -133,7 +133,7 @@ CommandHandler(
       HOME: process.env.HOME
     }
   });
-  proc.stdin.write(`import __internal_log from "./src/lib/demo-exec-lib.ts";` + code);
+  proc.stdin.write(`import __internal_log from "./src/lib/demo-exec-lib.ts";` + code.replace('__internal_log(console.log(', '(console.log('));
   proc.stdin.end();
 
   const log = (chunk) => {

@@ -33,12 +33,12 @@ const matches = [
     '717684437508161546',
   ],
   [
-    /(\b((that was|it was|so|it was so| that was so) )?((yum+|(chomp[a-z]* )*chomp[a-z]*|chomp|tasty|yummy|delicious)( meal)?|(a )?(good|very good|veri good|great|tasty|gr8) meal)$)|(\bi ate\b)/i,
+    /(\b((that was|it was|so|it was so| that was so) )?((yum+|(chomp[a-z]* )*chomp[a-z]*|chomp|tasty|tasti|deliciouse|nom|yummy|delicious)( meal)?|(a )?(good|very good|veri good|great|tasty|tasti|top quality|gr8) meal)$)|(\bi ate\b)/i,
     '750034917743919256',
   ],
   [
-    /^kill yourself|i want to die|end my life$/i,
-    '750034917743919256',
+    /^(kill yourself|i want to die|end my life|kill me|i want die|i want aliven'?t)$/i,
+    '750772434688540723',
   ],
 ]
 
@@ -47,7 +47,7 @@ GlobalMessageHandler(({ msg, client }) => {
     msg.react('👋');
   }
   matches.forEach(([m, ...emotes]) => {
-    if (msg.content.match(m)) {
+    if (msg.content.replace(/[\.\?;,<>!@#$%^&*()_+\\=-]+$/, '').match(m)) {
       const emoji = randomOf(emotes);
       msg.react(emoji)
     }

@@ -1,3 +1,5 @@
+const { shuffle } = require('@reverse/array');
+const { randomOf } = require('@reverse/random');
 const uuid = require('uuid');
 
 function getRandomFloat(min, max) {
@@ -24,6 +26,25 @@ CommandHandler(/^rng\s*([0-9]+)\s*([0-9]*\.[0-9]+)$/, ({ msg }, a, b) => {
   const low = (b === undefined ? 0 : parseFloat(a))
   const hi = (b === undefined ? (a !== undefined ? parseFloat(a) : 1 ) : parseFloat(b))
   msg.channel.send(`\`=${getRandomFloat(low, hi)}\``);
+});
+CommandHandler(/^sack\s*((.|\n)*)$/, ({ msg }, sackContents) => {
+  const sackItems = sackContents.split(/\n|,/);
+  if(sackItems.length === 1) {
+    msg.channel.send(`The sack needs more things. Separate the sack items with , or [newline]`);
+  } else {
+    const sackResult = randomOf(sackItems);
+    msg.channel.send(`You pulled **${sackResult.trim()}** out of the sack.`);
+  }
+});
+CommandHandler(/^shuffle ((.|\n)*)$/, ({ msg }, sackContents) => {
+  const sackItems = sackContents.split(/\n|,/);
+  if(sackItems.length === 1) {
+    msg.channel.send(`- ${sackItems[0]}\nWow how creative!`);
+  } else {
+    const sackResult = shuffle(sackItems);
+    msg.channel.send(`${sackResult.map(x => `- ${x.trim()}`).join('\n')}`);
+    msg.channel.send(`You pulled **${sackResult.trim()}** out of the sack.`);
+  }
 });
 const coinOutcomes = {
   'side': ['🙃', 'on the side. congrats.'],

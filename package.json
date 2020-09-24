@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@reverse/array": "^1.7.3",
     "@reverse/compact": "^1.1.4",
     "@reverse/random": "^1.0.12",
     "change-case": "^3.1.0",
