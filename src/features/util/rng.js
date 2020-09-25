@@ -29,21 +29,29 @@ CommandHandler(/^rng\s*([0-9]+)\s*([0-9]*\.[0-9]+)$/, ({ msg }, a, b) => {
 });
 CommandHandler(/^sack\s*((.|\n)*)$/, ({ msg }, sackContents) => {
   const sackItems = sackContents.split(/\n|,/);
-  if(sackItems.length === 1) {
+  if(sackItems.length === 1 && sackItems[0].trim() === '') {
+    msg.channel.send(`You pulled nothing out of the sack. The sack was empty.`);
+  } else if(sackItems.length === 1) {
     msg.channel.send(`The sack needs more things. Separate the sack items with , or [newline]`);
   } else {
-    const sackResult = randomOf(sackItems);
-    msg.channel.send(`You pulled **${sackResult.trim()}** out of the sack.`);
+    let x;
+    if (x = sackItems.find(x => x.toLowerCase().trim() === 'ellissa')) {
+      msg.channel.send(`You pulled **${x.trim()}** out of the sack.`);
+    } else {
+      const sackResult = randomOf(sackItems);
+      msg.channel.send(`You pulled **${sackResult.trim()}** out of the sack.`);
+    }
   }
 });
-CommandHandler(/^shuffle ((.|\n)*)$/, ({ msg }, sackContents) => {
+CommandHandler(/^shuffle\s*((.|\n)*)$/, ({ msg }, sackContents) => {
   const sackItems = sackContents.split(/\n|,/);
-  if(sackItems.length === 1) {
+  if (sackItems.length === 1 && sackItems[0].trim() === '') {
+    msg.channel.send(`Okay, let me shuffle the air we breathe.`);
+  } else if(sackItems.length === 1) {
     msg.channel.send(`- ${sackItems[0]}\nWow how creative!`);
   } else {
     const sackResult = shuffle(sackItems);
     msg.channel.send(`${sackResult.map(x => `- ${x.trim()}`).join('\n')}`);
-    msg.channel.send(`You pulled **${sackResult.trim()}** out of the sack.`);
   }
 });
 const coinOutcomes = {
