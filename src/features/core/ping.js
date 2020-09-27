@@ -66,7 +66,7 @@ const blank = "\\_\\_\\_";
 CommandHandler(/^ping/, async({ msg, client }) => {
   const randomLine = randomOf(pingLines)
     .replace('{name}', () => msg.member.displayName)
-  const firstLine = `<:paddlegame:736075703598186536> ${randomLine}`;
+  const firstLine = `<:paddlegame:736075703598186536> ${randomLine} <a:autobot:759607055068954664>`;
   const m = await msg.channel.send(`${firstLine}\n> 📧 ${blank}\n> 🌐 ${blank}\n> 🕙 ${blank}`);
   
   m.edit([
