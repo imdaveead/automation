@@ -1,7 +1,12 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs-extra');
-const { MessageAttachment } = require('discord.js');
 
+const allowedUsers = [
+  '244905301059436545', // dave
+  '576462139909210143', // tornado
+  '457294150329434113', // 1ctinus
+  '587633666071592980', // broochycat
+]
 const ONE_HOUR = 3600 * 1000;
 
 fs.ensureDirSync('data/questions');
@@ -134,7 +139,23 @@ async function questionFetch(guild) {
 
 OnInterval(questionFetch, ONE_HOUR)
 
-CommandHandler(/^questions$/, RequiresAdmin, ({ msg }) => {
+function Cooldown(seconds) {
+  const cooldown = new CacheMap({ ttl: seconds })
+  return ({ msg, next }, ...args) => {
+    const v = cooldown.get(0);
+    if(v) {
+      if(v === 1) {
+        msg.react('752941123294724207')
+        cooldown.map.get(0).value = 2;
+      }
+    } else {
+      cooldown.set(0, 1)
+      next(...args);
+    }
+  }
+}
+
+CommandHandler(/^questions$/, UserWhitelist(allowedUsers), Cooldown(500), ({ msg }) => {
   questionFetch(msg.guild)
   msg.react('742556391356629062')
 })

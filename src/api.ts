@@ -71,6 +71,8 @@ declare global {
   
   /** Middleware for requiring admin*/
   function RequiresAdmin(msg: CommandEvent, ...args: string[]): void;
+  /** Middleware for requiring admin*/
+  function UserWhitelist(list: string[]): (msg: CommandEvent, ...args: string[]) => void;
   /** Middleware for removing first arg*/
   function Shift1(msg: CommandEvent, ...args: string[]): void;
 
