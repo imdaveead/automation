@@ -24,6 +24,14 @@ global.RequiresAdmin = (event, ...args) => {
     event.msg.react('742555884185452584');
   }
 }
+global.UserWhitelist = (list) => (event, ...args) => {
+  if (list.includes(event.msg.member.id)) {
+    event.next(...args);
+  } else {
+    // bill wurtz react
+    event.msg.react('742555884185452584');
+  }
+}
 global.Shift1 = (event, _, ...args) => {
   event.next(...args);
 }
