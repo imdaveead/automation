@@ -118,23 +118,32 @@ FeatureAllowed((guild) => {
   return guild.id === '366510359370137610'
 });
 
-async function questionFetch(guild) {
-  const channel = guild.channels.get('661561881160450060');
-  if(!channel || channel.type !== 'text') { return; }
+let running = false;
 
-  const questions = await getNewQuestions();
-  if (questions.length > 0) {
-    await channel.send(`<a:talking_pento:737687712500547644> **New Questions!** <:breakfast:742831142725615627>`);
-    for (let i = 0; i < questions.length; i++) {
-      const { date, image, url, links } = questions[i];
-      
-      await channel.send(`**${date}** - ${url}${links.length > 0 ? '\n' + links.join('\n') : ''}`, {
-        files: [image]
-      });
+async function questionFetch(guild) {
+  if(running) return;
+  running = true;
+  try {
+    const channel = guild.channels.get('661561881160450060');
+    if(!channel || channel.type !== 'text') { return; }
+  
+    const questions = await getNewQuestions();
+    if (questions.length > 0) {
+      await channel.send(`<a:talking_pento:737687712500547644> **New Questions!** <:breakfast:742831142725615627>`);
+      for (let i = 0; i < questions.length; i++) {
+        const { date, image, url, links } = questions[i];
+        
+        await channel.send(`**${date}** - ${url}${links.length > 0 ? '\n' + links.join('\n') : ''}`, {
+          files: [image]
+        });
+      }
+      await channel.send(`<:damien_arms_point:742555954083659870><a:outside_sun:742446115013787687> that's all folks, for now... <:bye:742555752304214067>`);
+      await fs.emptyDir('data/questions');
     }
-    await channel.send(`<:damien_arms_point:742555954083659870><a:outside_sun:742446115013787687> that's all folks, for now... <:bye:742555752304214067>`);
-    await fs.emptyDir('data/questions');
+  } catch (error) {
+    // lol
   }
+  running = false
 }
 
 OnInterval(questionFetch, ONE_HOUR)
