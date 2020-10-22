@@ -6,7 +6,7 @@ global.CacheMap = require('./cache-map');
 
 const DAVE = '244905301059436545';
 
-const cache = new CacheMap({ stdTTL: 60 * 60 });
+const cache = new CacheMap({ stdTTL: 12 * 60 * 60 });
 
 const client = new discord.Client();
 
@@ -46,10 +46,9 @@ global.OnInterval = (cb, time) => {
   });
 }
 
-
-global.EMOJI_BOX_NO = '<:ballot_box_with_x:503201107036602368>';
-global.EMOJI_BOX_BLANK = '<:ballot_box_empty:503201106709446667>';
-global.EMOJI_BOX_YES = '☑️';
+global.EMOJI_SWITCH_OFF = '<:disabled:764847050734698497>';
+global.EMOJI_SWITCH_ON = '<:enabled:764847050755801129>';
+global.EMOJI_SWITCH_DISABLED_ON = '<:forcedenabled:768832720557047829>';
 
 function loadFeature(filename) {
   let meta = { name: filename, desc: '[no description provided]' };
@@ -57,6 +56,7 @@ function loadFeature(filename) {
   let globalHandlers = [];
   let manual = [];
   let onLoad = [];
+  let otherEventHandlers = {};
   let onUnload = [];
   let isAllowed;
   global.Meta = (m) => {meta = m};
@@ -85,6 +85,9 @@ function loadFeature(filename) {
   global.FeatureAllowed = (allowFunc) => { isAllowed = allowFunc }
   global.OnLoad = (cb) => { onLoad.push(cb) }
   global.OnUnload = (cb) => { onUnload.push(cb) }
+  global.OnDiscordEvent = (name, ...cb) => {
+    otherEventHandlers[name] = [...(otherEventHandlers[name] || []), cb];
+  }
   global.GlobalMessageHandler = (...handlers) => {
     globalHandlers.push({
       handlers
@@ -103,6 +106,7 @@ function loadFeature(filename) {
     isAllowed,
     onLoad,
     onUnload,
+    otherEventHandlers,
   }
 }
 
@@ -236,5 +240,79 @@ client.on('message', async(msg) => {
     });
   });
 });
+
+function eventHandler(evName) {
+  return async(...args) => {
+    if (args[0] && args[0].guild && args[0].guild.id) {
+      const config = await getGuildConfig(args[0].guild)
+      const featureStrings = [...categories.core, ...config.loadedFeatures];
+      featureStrings.forEach((name) => {
+        if(!(name in features)) {
+          console.log('Feature Name ', name);
+          return
+        }
+        const feature = features[name];
+        feature.otherEventHandlers[evName] && feature.otherEventHandlers[evName].forEach(x => {
+          const handlers = x.concat();
+    
+          const event = {
+            client,
+            config,
+            writeConfig: () => writeConfig(args[0].guild.id, config),
+            featureData: { config, features },
+            next
+          };
+    
+          function next(...args) {
+            const x = handlers.shift()
+            x && x(event, ...args);
+          }
+          next(...args);
+        });
+      });
+    }
+  }
+}
+client.on('channelCreate', eventHandler('channelCreate'))
+client.on('channelDelete', eventHandler('channelDelete'))
+client.on('channelPinsUpdate', eventHandler('channelPinsUpdate'))
+client.on('channelUpdate', eventHandler('channelUpdate'))
+client.on('clientUserGuildSettingsUpdate', eventHandler('clientUserGuildSettingsUpdate'))
+client.on('clientUserSettingsUpdate', eventHandler('clientUserSettingsUpdate'))
+client.on('disconnect', eventHandler('disconnect'))
+client.on('emojiCreate', eventHandler('emojiCreate'))
+client.on('emojiDelete', eventHandler('emojiDelete'))
+client.on('emojiUpdate', eventHandler('emojiUpdate'))
+client.on('guildBanAdd', eventHandler('guildBanAdd'))
+client.on('guildBanRemove', eventHandler('guildBanRemove'))
+client.on('guildCreate', eventHandler('guildCreate'))
+client.on('guildDelete', eventHandler('guildDelete'))
+client.on('guildMemberAdd', eventHandler('guildMemberAdd'))
+client.on('guildMemberAvailable', eventHandler('guildMemberAvailable'))
+client.on('guildMemberRemove', eventHandler('guildMemberRemove'))
+client.on('guildMembersChunk', eventHandler('guildMembersChunk'))
+client.on('guildMemberSpeaking', eventHandler('guildMemberSpeaking'))
+client.on('guildMemberUpdate', eventHandler('guildMemberUpdate'))
+client.on('guildUnavailable', eventHandler('guildUnavailable'))
+client.on('guildUpdate', eventHandler('guildUpdate'))
+client.on('guildIntegrationsUpdate', eventHandler('guildIntegrationsUpdate'))
+client.on('message', eventHandler('message'))
+client.on('messageDelete', eventHandler('messageDelete'))
+client.on('messageDeleteBulk', eventHandler('messageDeleteBulk'))
+client.on('messageReactionAdd', eventHandler('messageReactionAdd'))
+client.on('messageReactionRemove', eventHandler('messageReactionRemove'))
+client.on('messageReactionRemoveAll', eventHandler('messageReactionRemoveAll'))
+client.on('messageUpdate', eventHandler('messageUpdate'))
+client.on('presenceUpdate', eventHandler('presenceUpdate'))
+client.on('rateLimit', eventHandler('rateLimit'))
+client.on('roleCreate', eventHandler('roleCreate'))
+client.on('roleDelete', eventHandler('roleDelete'))
+client.on('roleUpdate', eventHandler('roleUpdate'))
+client.on('typingStart', eventHandler('typingStart'))
+client.on('typingStop', eventHandler('typingStop'))
+client.on('userNoteUpdate', eventHandler('userNoteUpdate'))
+client.on('userUpdate', eventHandler('userUpdate'))
+client.on('voiceStateUpdate', eventHandler('voiceStateUpdate'))
+client.on('webhookUpdate', eventHandler('webhookUpdate'))
 
 client.login(fs.readFileSync('./token').toString().match(/token="(.*?)"/)[1]);
