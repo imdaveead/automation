@@ -33,7 +33,7 @@ CommandHandler(
         .filter(x => !categories.core.includes(x))
         .filter(x => features[x].isAllowed ? features[x].isAllowed(msg.guild) : true)
         .sort((a, b) => compare(features[b].category, features[a].category))
-        .map(x => ` - ${config.loadedFeatures.includes(x) ? EMOJI_BOX_YES : EMOJI_BOX_NO} ${features[x].category ? `\`${features[x].category}:\`​**\`${x}\`**` : `**\`${x}\`**`}`)
+        .map(x => ` - ${config.loadedFeatures.includes(x) ? EMOJI_SWITCH_ON : EMOJI_SWITCH_OFF} ${features[x].category ? `\`${features[x].category}:\`​**\`${x}\`**` : `**\`${x}\`**`}`)
         .join('\n'),
       ``,
       `Use \`${config.prefix}config features +[feature]\` to add and \`${config.prefix}config features -[feature]\` to remove features.`
@@ -47,20 +47,20 @@ CommandHandler(
       if (config.loadedFeatures.includes(feature)) {
         return null;
       } else {
-        if(features[feature].isAllowed ? !features[feature].isAllowed(guild) : false) {
+        if(features[feature].isAllowed ? !features[feature].isAllowed(msg.guild) : false) {
           return null;
         }
         changed = true;
         config.loadedFeatures.push(feature);
         features[feature].onLoad.forEach(x => x(msg.guild));
-        return `Enabled \`${feature.replace(/\n/g, '').replace(/`/g, '\\\\`')}\``
+        return `${EMOJI_SWITCH_ON} Enabled \`${feature.replace(/\n/g, '').replace(/`/g, '\\\\`')}\``
       }
     }
     function remove(feature) {
       if (config.loadedFeatures.includes(feature)) {
         config.loadedFeatures = config.loadedFeatures.filter(x => x !== feature);
         features[feature].onUnload.forEach(x => x(msg.guild));
-        return `Disabled \`${feature.replace(/\n/g, '').replace(/`/g, '\\\\`')}\``
+        return `${EMOJI_SWITCH_OFF} \`${feature.replace(/\n/g, '').replace(/`/g, '\\\\`')}\``
       } else {
         changed = true;
         return null;
@@ -98,7 +98,7 @@ CommandHandler(
         .filter(x => !categories.core.includes(x))
         .filter(x => features[x].isAllowed ? features[x].isAllowed(msg.guild) : true)
         .sort((a, b) => compare(features[b].category, features[a].category))
-        .map(x => ` - ${config.loadedFeatures.includes(x) ? EMOJI_BOX_YES : EMOJI_BOX_NO} ${features[x].category ? `\`${features[x].category}:\`​**\`${x}\`**` : `**\`${x}\`**`}`)
+        .map(x => ` - ${config.loadedFeatures.includes(x) ? EMOJI_SWITCH_ON : EMOJI_SWITCH_OFF} ${features[x].category ? `\`${features[x].category}:\`​**\`${x}\`**` : `**\`${x}\`**`}`)
         .join('\n'),
       ``,
       `Use \`${config.prefix}config features +[feature]\` to add and \`${config.prefix}config features -[feature]\` to remove features.`

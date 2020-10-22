@@ -65,6 +65,8 @@ declare global {
   function CommandHandler(match: RegExp, cb: CommandCallback): void;
   function CommandHandler(match: RegExp, ...middleware: CommandCallback[]): void;
 
+  const OnDiscordEvent: typeof Client.prototype.on;
+
   /** Declare a Sub Command Middleware, based on a regex match. Capture groups are passed as arguments to the callback. */
   function SubCommand(match: RegExp, cb: CommandCallback): CommandCallback;
   function SubCommand(match: RegExp, ...middleware: CommandCallback[]): CommandCallback;
@@ -79,9 +81,8 @@ declare global {
   /** Returns if a member is an admin. */
   function userIsAdmin(member: GuildMember): boolean;
 
-  const EMOJI_BOX_NO: string;
-  const EMOJI_BOX_BLANK: string;
-  const EMOJI_BOX_YES: string;
+  const EMOJI_SWITCH_OFF: string;
+  const EMOJI_SWITCH_ON: string;
 
   const CacheMap: typeof import('./cache-map');
 }
