@@ -36,7 +36,7 @@ async function findFile(name, extensions) {
     for (extension in extensions) {
         file = `https://davecode.me/other/${name}.${extension}`;
         if (extension === 'nul') break; // don't check if .nul exists or not
-        if (exists(`/home/dave/syncthing/other/public/${name}.${extension}`)) break;
+        if (existsSync(`/home/dave/syncthing/other/public/${name}.${extension}`)) break;
     }
     
     // add name to cache with found extension but only if no extension was specified
