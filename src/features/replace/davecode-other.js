@@ -38,7 +38,11 @@ GlobalMessageHandler(async ({ msg, client }) => {
         let file = await findFile(matchs[2], (matchs[3]) ? [matchs[3]]:['mp4', 'gif', 'png', 'mp3'])
         if (!file) return; // if no matching file is found than die
 
-        await autoHook.send(matchs[1].trim() + ' ' + matchs[4].trim(), {files: [file]});
+        await autoHook.send(matchs[1].trim() + ' ' + matchs[4].trim(), {
+            username: msg.member.nickname,
+            avatarUrl: msg.user.avatarURL(),
+            files: [file]
+        });
         
         try {
             await msg.delete();
