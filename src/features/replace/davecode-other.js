@@ -1,76 +1,84 @@
 //const fetch = require('node-fetch');
-const { existsSync } = require('fs');
+const { join: joinPaths } = require('path');
+const { pathExistsSync, pathExists } = require('fs-extra');
 const cache = new (require('node-cache'))({ stdTTL: 21600 });
 
+// const OTHER_BASE = '/home/dave/syncthing/other/public';
+const OTHER_BASE = '/cloud/other/public';
+const OTHER_EXTENSIONS = ['mp4', 'gif', 'png', 'mp3'];
 
-async function findFile(name, extensions) {
-    // check cache
-    let file = cache.get(name);
-    if (file === 'nul') return false; // if cache returns null than no file exists
-    if ((extensions.length > 1 && file) || extensions[0] === file) return `https://davecode.me/other/${name}.${file}`;
-    // if we're not looking for a specific extension (and file exists) OR cached extension matchs the extension we're looking for: return cache
+const localOtherDirectory = pathExistsSync(OTHER_BASE);
 
-    extensions.push('nul'); // add null so we can catch if all extensions failed
-    for (let extension of extensions) {
-        file = `https://davecode.me/other/${name}.${extension}`;
-        if (extension === 'nul') break; // don't check if .nul exists or not
-        if ((await fetch(file)).status < 400) break; // if status < 400 than file exists and not errored
-    }
-    
-    // add name to cache with found extension but only if no extension was specified
-    if (extensions.length > 2) cache.set(name, file.substr(-3, 3));
-    return (file.endsWith('nul')) ? false:file; // if nul extension that means we didn't find a file so return false
+async function findURL(name, extensions) {
+  extensions.push('nul'); // add null so we can catch if all extensions failed
+  for (let extension of extensions) {
+    file = `https://davecode.me/other/${name}.${extension}`;
+    if (extension === 'nul') break; // don't check if .nul exists or not
+    if ((await fetch(file, { method: 'HEAD' })).ok) break; // if status < 400 than file exists
+  }
+  
+  // add name to cache with found extension but only if no extension was specified
+  if (extensions.length > 2) cache.set(name, file.substr(-3, 3));
+  return (file.endsWith('nul')) ? false:file; // if nul extension that means we didn't find a file so return false
 }
 
-
 async function findFile(name, extensions) {
-    // check cache
-    let file = cache.get(name);
-    if (file === 'nul') return false; // if cache returns null than no file exists
-    if ((extensions.length > 1 && file) || extensions[0] === file) return `https://davecode.me/other/${name}.${file}`;
-    // if we're not looking for a specific extension (and file exists) OR cached extension matchs the extension we're looking for: return cache
-
-    extensions.push('nul'); // add null so we can catch if all extensions failed
-    for (let extension of extensions) {
-        file = `https://davecode.me/other/${name}.${extension}`;
-        if (extension === 'nul') break; // don't check if .nul exists or not
-        if (existsSync(`/home/dave/syncthing/other/public/${name}.${extension}`)) break;
-    }
-    
-    // add name to cache with found extension but only if no extension was specified
-    if (extensions.length > 2) cache.set(name, file.substr(-3, 3));
-    return (file.endsWith('nul')) ? false:file; // if nul extension that means we didn't find a file so return false
+  extensions.push('nul'); // add null so we can catch if all extensions failed
+  for (let extension of extensions) {
+    file = `https://davecode.me/other/${name}.${extension}`;
+    if (extension === 'nul') break; // don't check if .nul exists or not
+    if (await pathExists(joinPaths(OTHER_BASE, `${name}.${extension}`))) break;
+  }
+  
+  // add name to cache with found extension but only if no extension was specified
+  if (extensions.length > 2) cache.set(name, file.substr(-3, 3));
+  return (file.endsWith('nul')) ? false:file; // if nul extension that means we didn't find a file so return false
 }
 
-GlobalMessageHandler(async ({ msg, client }) => {
-    if (msg.content.indexOf(';') > -1) { // if message doesn't even include ; die
-        // find/create webhook
-        let autoHook = (await msg.channel.fetchWebhooks()).find(hook => hook.name === 'AUTO');
-        if (!autoHook) {
-            try {
-                autoHook = await msg.channel.createWebhook('AUTO');
-            } catch (err) {
-                return err
-            };
-        }
+function findOther(name, extensions) {
+  // check cache
+  let file = cache.get(name);
+  if (file === 'nul') return false; // if cache returns null than no file exists
+  if ((extensions.length > 1 && file) || extensions[0] === file) return `https://davecode.me/other/${name}.${file}`;
+  
+  // two implementations exist, file based and url based.
+  if (localOtherDirectory) {
+    return findFile(name, extensions);
+  } else {
+    return findURL(name, extensions);
+  }
+}
 
-        // find the file
-        let matchs = msg.content.match(/^([^;]*);([a-zA-Z0-9_-]+)\.*(mp4|gif|png|mp3)*;*(.*)/);
-        if (!matchs) return; // if no matchs than die
-        let file = await findFile(matchs[2], (matchs[3]) ? [matchs[3]] : ['mp4', 'gif', 'png', 'mp3'])
-        if (!file) return; // if no matching file is found than die
+const regex = new RegExp(`^([^;]*);([a-zA-Z0-9_-]+)\\.*(${OTHER_EXTENSIONS.join('|')})?;?(.*)`);
 
-        await autoHook.send(matchs[1].trim() + ' ' + matchs[4].trim(), {
-            username: msg.member.displayName,
-            //avatarUrl: msg.author.displayAvatarURL(), // discord.js v12
-            avatarUrl: msg.author.displayAvatarURL, // discord.js v11
-            files: [file]
-        });
+GlobalMessageHandler(async ({ msg }) => {
+  if (msg.content.includes(';')) { // if message doesn't even include ; die
+    // find the file
+    let match = msg.content.match(regex);
+    console.log(match)
+    if (!match) return;
 
-        try {
-            await msg.delete();
-        } catch (err) {
-            return err
-        };
+    let file = await findOther(match[2], match[3] ? [match[3]] : OTHER_EXTENSIONS.concat())
+    if (!file) return;
+
+    // find/create webhook
+    let autoHook = (await msg.channel.fetchWebhooks()).find(hook => hook.name === 'AUTO');
+    if (!autoHook) {
+      try {
+        autoHook = await msg.channel.createWebhook('AUTO');
+      } catch (err) {
+        return err
+      };
     }
+
+    // send and delete at same time
+    await Promise.all([
+      autoHook.send(match[1].trim() + ' ' + match[4].trim() + '\n' + file, {
+        username: msg.member.displayName,
+        //avatarUrl: msg.author.displayAvatarURL(), // discord.js v12
+        avatarUrl: msg.author.displayAvatarURL, // discord.js v11
+      }),
+      msg.delete().catch(() => {}),
+    ])
+  }
 });
