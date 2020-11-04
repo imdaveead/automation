@@ -55,7 +55,6 @@ GlobalMessageHandler(async ({ msg }) => {
   if (msg.content.includes(';')) { // if message doesn't even include ; die
     // find the file
     let match = msg.content.match(regex);
-    console.log(match)
     if (!match) return;
 
     let file = await findOther(match[2], match[3] ? [match[3]] : OTHER_EXTENSIONS.concat())
