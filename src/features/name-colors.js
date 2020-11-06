@@ -5,6 +5,7 @@ Meta({
   name: "Name Colors",
   desc: "Implements the name painter command (color or paint) to allow anyone to set their name color to whatever they want."
 })
+RequiredPermission('MANAGE_ROLES')
 
 CommandHandler(/^(paint|color).*/, async({ msg }) => {
   // guild exclusion

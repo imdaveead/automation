@@ -1,5 +1,15 @@
 const fetch = require('node-fetch');
-const cache = new (require('node-cache'))({ stdTTL: 21600 });
+const cache = new CacheMap({ ttl: 60 * 60 * 2 });
+
+const preComputedCurrencyList = ['AED', 'AFN', 'ALL', 'AMD', 'ANG', 'AOA', 'ARS', 'AUD', 'AWG', 'AZN', 'BAM', 'BBD', 'BDT', 'BGN', 'BHD', 'BIF', 'BMD', 'BND', 'BOB', 'BRL', 'BSD', 'BTC', 'BTN', 'BWP', 'BYN', 'BYR', 'BZD', 'CAD', 'CDF', 'CHF', 'CLF', 'CLP', 'CNY', 'COP', 'CRC', 'CUC', 'CUP', 'CVE', 'CZK', 'DJF', 'DKK', 'DOP', 'DZD', 'EGP', 'ERN', 'ETB', 'EUR', 'FJD', 'FKP', 'GBP', 'GEL', 'GGP', 'GHS', 'GIP', 'GMD', 'GNF', 'GTQ', 'GYD', 'HKD', 'HNL', 'HRK', 'HTG', 'HUF', 'IDR', 'ILS', 'IMP', 'INR', 'IQD', 'IRR', 'ISK', 'JEP', 'JMD', 'JOD', 'JPY', 'KES', 'KGS', 'KHR', 'KMF', 'KPW', 'KRW', 'KWD', 'KYD', 'KZT', 'LAK', 'LBP', 'LKR', 'LRD', 'LSL', 'LTL', 'LVL', 'LYD', 'MAD', 'MDL', 'MGA', 'MKD', 'MMK', 'MNT', 'MOP', 'MRO', 'MUR', 'MVR', 'MWK', 'MXN', 'MYR', 'MZN', 'NAD', 'NGN', 'NIO', 'NOK', 'NPR', 'NZD', 'OMR', 'PAB', 'PEN', 'PGK', 'PHP', 'PKR', 'PLN', 'PYG', 'QAR', 'RON', 'RSD', 'RUB', 'RWF', 'SAR', 'SBD', 'SCR', 'SDG', 'SEK', 'SGD', 'SHP', 'SLL', 'SOS', 'SRD', 'STD', 'SVC', 'SYP', 'SZL', 'THB', 'TJS', 'TMT', 'TND', 'TOP', 'TRY', 'TTD', 'TWD', 'TZS', 'UAH', 'UGX', 'USD', 'UYU', 'UZS', 'VEF', 'VND', 'VUV', 'WST', 'XAF', 'XAG', 'XAU', 'XCD', 'XDR', 'XOF', 'XPF', 'YER', 'ZAR', 'ZMK', 'ZMW', 'ZWL'];
+
+const getConfig = Config({
+  defaultCurrency: {
+    type: 'string',
+    default: 'USD',
+    desc: 'Default currency used for currency conversion.',
+  }
+})
 
 async function getCurrencyData() {
   let currencyData = cache.get('currency');
@@ -11,6 +21,13 @@ async function getCurrencyData() {
 
 async function currencyConvert({ msg }, from, to, amount, silentErrors) {
   const currencyData = await getCurrencyData();
+
+  if (from === 'default') {
+    from = getConfig(msg.guild).defaultCurrency;
+  }
+  if (to === 'default') {
+    to = getConfig(msg.guild).defaultCurrency;
+  }
 
   if (!currencyData.rates[from.toUpperCase()]) {
     if (!silentErrors) {
@@ -39,12 +56,23 @@ async function currencyConvert({ msg }, from, to, amount, silentErrors) {
 CommandHandler(/^([A-Za-z]{3})\s*2?\s*([A-Za-z]{3}) +([^ ]+)$/, (m, a, b, amount) => currencyConvert(m, a, b, parseFloat(amount), true));
 // !<a><b>
 CommandHandler(/^([A-Za-z]{3})\s*2?\s*([A-Za-z]{3}) *$/, (m, a, b) => currencyConvert(m, a, b, 1, true));
+// !<a> <amount>
+CommandHandler(/^([A-Za-z]{3})\s+([^ ]+)$/, (m, a, amount) => currencyConvert(m, a, 'default', parseFloat(amount), true));
+// !<a>
+CommandHandler(/^([A-Za-z]{3})\s*$/, (m, a) => currencyConvert(m, a, 'default', 1, true));
+// !<a> <amount>
+CommandHandler(/^to\s+([A-Za-z]{3})\s+([^ ]+)$/, (m, a, amount) => currencyConvert(m, 'default', a, parseFloat(amount), true));
+// !<a>
+CommandHandler(/^to\s+([A-Za-z]{3})\s*$/, (m, a) => currencyConvert(m, 'default', a, 1, true));
 
 DocCommand({
   usage: '<currency from> <currency to> [amount]',
-  desc: 'Converts currency amounts using fixer.io\'s apis.',
+  searchRegex: new RegExp(`^(to\\s+)?(${preComputedCurrencyList.join('|')})`),
+  desc: 'Converts currency amounts using fixer.io\'s apis. Space between two currencies is optional, and leaving out one will use the server default, which is set to USD.',
   examples: [
     'usd eur 15',
     'nzdbtc 12000',
+    'btc 5',
+    'to eur 5',
   ]
 });

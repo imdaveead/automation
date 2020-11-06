@@ -1,14 +1,9 @@
+require('auto-api');
 const puppeteer = require('puppeteer');
 const fs = require('fs-extra');
+const { randomOf } = require('@reverse/random');
 
-const allowedUsers = [
-  '244905301059436545', // dave
-  '576462139909210143', // tornado
-  '457294150329434113', // 1ctinus
-  '587633666071592980', // broochycat
-]
-const ONE_HOUR = 3600 * 1000;
-
+// question scraper
 fs.ensureDirSync('data/questions');
 let savedLastQuestion
 try {
@@ -114,9 +109,33 @@ async function getNewQuestions() {
 }
 
 // part of code to do the actual discord stuff / interface with the bot
+Meta({
+  name: 'r/BillWurtz exclusive: Question Fetcher',
+  desc: 'Fetches and screenshots questions from billwurtz.com'
+});
 FeatureAllowed((guild) => {
   return guild.id === '366510359370137610'
 });
+
+const getConfig = Config({
+  questionChannel: {
+    type: 'channel',
+    default: '661561881160450060',
+    desc: 'Where to send questions.'
+  }
+});
+
+const allowedUsers = [
+  '244905301059436545', // dave
+  '576462139909210143', // tornado
+  '457294150329434113', // 1ctinus
+  '587633666071592980', // broochycat
+  '166315539524747266', // Rafunzi
+  '430551674533314580', // gee
+  '639794240397901825', 
+  '562289654947119116', // 
+];
+const ONE_HOUR = 3600 * 1000;
 
 let running = false;
 
@@ -124,7 +143,8 @@ async function questionFetch(guild) {
   if(running) return;
   running = true;
   try {
-    const channel = guild.channels.get('661561881160450060');
+    const config = getConfig(guild);
+    const channel = config.questionChannel;
     if(!channel || channel.type !== 'text') { return; }
   
     const questions = await getNewQuestions();
@@ -146,7 +166,7 @@ async function questionFetch(guild) {
   running = false
 }
 
-OnInterval(questionFetch, ONE_HOUR)
+// OnInterval(questionFetch, ONE_HOUR)
 
 function Cooldown(seconds) {
   const cooldown = new CacheMap({ ttl: seconds })
@@ -154,7 +174,7 @@ function Cooldown(seconds) {
     const v = cooldown.get(0);
     if(v) {
       if(v === 1) {
-        msg.react('752941123294724207')
+        msg.react(randomOf([Emotes.clock_rotate, Emotes.bill_slow_down]))
         cooldown.map.get(0).value = 2;
       }
     } else {
@@ -165,6 +185,7 @@ function Cooldown(seconds) {
 }
 
 CommandHandler(/^questions$/, UserWhitelist(allowedUsers), Cooldown(500), ({ msg }) => {
-  questionFetch(msg.guild)
-  msg.react('742556391356629062')
+  msg.channel.send('question stuff is gonna be down for now while bot is getting some other features added.')
+  // questionFetch(msg.guild)
+  // msg.react('742556391356629062')
 })

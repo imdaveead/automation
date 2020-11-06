@@ -1,3 +1,5 @@
+require('auto-api');
+
 DocCommand({
   usage: 'help [command/feature]',
   desc: 'Look up bot documentation.'

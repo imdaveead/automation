@@ -1,9 +1,11 @@
+require('auto-api');
+
 const { randomOf } = require("@reverse/random");
 
 const startupTime = Date.now();
 
 Meta({
-  name: 'Ping Magic!',
+  name: 'Ping!',
   desc: 'Contains a cool ping command. Example for module format.'
 });
 
@@ -41,7 +43,7 @@ const pingLines = [
   'oh of course i\'m online.',
   'hello.',
   'hello, {name}.',
-  'woa-woah it\'s {name}! <:coolwoah:717684437508161546>',
+  `woa-woah it's {name}! ${Emotes.cool_woah}`,
   '{name}, i hope you\'re ready for some stats.',
   '*pings the ball to {name}*.',
   'i am ready.',
@@ -61,20 +63,27 @@ const pingLines = [
   '!!! woah i didn\'t see you there.',
   'you\'re looking nice today.',
   'auto, glad to serve you.',
-]
+];
+
 const blank = "\\_\\_\\_";
 CommandHandler(/^ping/, async({ msg, client }) => {
-  const randomLine = randomOf(pingLines)
-    .replace('{name}', () => msg.member.displayName)
-  const firstLine = `<:paddlegame:736075703598186536> ${randomLine} <a:autobot:759607055068954664>`;
-  const m = await msg.channel.send(`${firstLine}\n> 📧 ${blank}\n> 🌐 ${blank}\n> 🕙 ${blank}`);
-  
-  m.edit([
+  const randomLine = randomOf(pingLines).replace('{name}', () => msg.member.displayName)
+  const firstLine = `${Emotes.bill_paddle_game} ${randomLine} ${Emotes.auto_gif}`;
+
+  const getText = (a, b, c) => [
     `${firstLine}`,
-    `> 📧 ${Math.floor(m.createdTimestamp - msg.createdTimestamp)}ms`,
-    `> 🌐 ${Math.floor(client.ping)}ms`,
-    `> 🕙 ${compactTime((Date.now() - startupTime)/1000)}`
-  ]);
+    `> ${Emotes.bill_mail_bird} ${a || blank}`,
+    `> ${Emotes.base.globe_with_meridians} ${b || blank}`,
+    `> ${Emotes.base.clock10} ${c || blank}`,
+  ].join('\n')
+
+  const m = await msg.channel.send(getText());
+  
+  m.edit(getText(
+    Math.floor(m.createdTimestamp - msg.createdTimestamp) + 'ms',
+    Math.floor(client.ws.ping) + 'ms',
+    compactTime((Date.now() - startupTime)/1000),
+  ));
 });
 
 DocCommand({
