@@ -1,7 +1,8 @@
 const child_process = require('child_process');
 const path = require('path');
 const ts = require('typescript');
-const { RichEmbed } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
+const { randomOf } = require('@reverse/random');
 
 const printer = ts.createPrinter();
 
@@ -18,7 +19,7 @@ function Cooldown(seconds) {
     const v = cooldown.get(msg.author.id);
     if(v) {
       if(v === 1) {
-        msg.react('752941123294724207')
+        msg.react(randomOf([Emotes.clock_rotate, Emotes.bill_slow_down]))
         cooldown.map.get(msg.author.id).value = 2;
       }
     } else {
@@ -63,56 +64,35 @@ function trimCode(code) {
   return code;
 }
 
+const DAVE = '244905301059436545';
+
 CommandHandler(
   /^eval\s+((?:--danger|-[dD])\s+)?(?:```(?:(?:js|javascript|ts|typescript|)\n)?((?:.|\n)+)```|((?:.|\n)+))$/,
   Cooldown(6),
   async({ msg, client, config, writeConfig }, danger, code1, code2) => {
 
-  const parsed = ts.createSourceFile('discord.ts', code1 || code2, ts.ScriptTarget.ES5, true);
-  const transformed = ts.transform(
-    parsed,
-    [
-      (context) => (rootNode) => {
-        function visitChild(node) {
-          if(node.kind === ts.SyntaxKind.ImportDeclaration) {
-            console.log(node);
-          }
-          if(node.parent.end === node.end) {
-            if (node.kind === ts.SyntaxKind.ExpressionStatement) {
-              return context.factory.createCallExpression(
-                context.factory.createIdentifier("__internal_log"),
-                [],
-                [node.expression]
-              )
-            }
-          }
-          return node;
-        }
-        function visitMain(node) {
-          return ts.visitEachChild(node, visitChild, context);
-        }
-        return ts.visitNode(rootNode, visitMain);
-      } 
-    ]
-  );
-  const code = printer.printFile(transformed.transformed[0]);
+  if (danger && msg.author.id !== DAVE) {
+    // davecode_red
+    msg.react(randomOf([Emotes.bill_no_hotewig, Emotes.davecode_red]));
+    return;
+  }
 
   let data = '';
   let errorCode = -1;
 
   function getMessage() {
-    return new RichEmbed()
-      .setTitle(`**${possessive(msg.member.displayName)} TypeScript Evaluation**`)
+    return new MessageEmbed()
+      .setTitle(`**${possessive(msg.member.displayName)} ${danger ? 'JavaScript+Discord.JS' : 'TypeScript'} Evaluation**`)
       .setTimestamp()
       .setDescription([
         errorCode === -1
-        ? `<a:believability_bob:750338809249398806> Processing`
+        ? `${Emotes.bill_believability_bob} Processing`
         : errorCode === -2
-          ? `<:pain:729126433779220510> The program timed out. Your program cannot run longer than 10 seconds. <a:sun_with_deadly_laser:743372585437364326>`
+          ? `${Emotes.pain} The program timed out. Your program cannot run longer than 10 seconds. ${Emotes.bill_deadly_lazer}`
           : [
           errorCode === 0
-            ? `<:coolwoah:717684437508161546> Successfully Run`
-            : `<:angry_pink:753969564408086600> Error when running your code.`,
+            ? `${Emotes.cool_woah} Successfully Run`
+            : `${Emotes.angry_pink} Error when running your code.`,
           data === ''
             ? '\n*[no program output]*'
             : `\`\`\`typescript\n${trimCode(data)}\`\`\``,
@@ -121,48 +101,82 @@ CommandHandler(
       .setFooter(`${msg.member.displayName}`, msg.author.avatarURL)
   }
 
-  let m = null;
+  if(danger) {
+
+  } else {
+    const parsed = ts.createSourceFile('discord.ts', code1 || code2, ts.ScriptTarget.ES5, true);
+    const transformed = ts.transform(
+      parsed,
+      [
+        (context) => (rootNode) => {
+          function visitChild(node) {
+            if(node.kind === ts.SyntaxKind.ImportDeclaration) {
+              console.log(node);
+            }
+            if(node.parent.end === node.end) {
+              if (node.kind === ts.SyntaxKind.ExpressionStatement) {
+                return context.factory.createCallExpression(
+                  context.factory.createIdentifier("__internal_log"),
+                  [],
+                  [node.expression]
+                )
+              }
+            }
+            return node;
+          }
+          function visitMain(node) {
+            return ts.visitEachChild(node, visitChild, context);
+          }
+          return ts.visitNode(rootNode, visitMain);
+        } 
+      ]
+    );
+    const code = printer.printFile(transformed.transformed[0]);
+
+    let m = null;
+
+    const proc = child_process.spawn('deno', ['run', '--unstable', '-q', '-'], {
+      stdio: 'pipe',
+      env: {
+        NO_COLOR: 'true',
+        DENO_DIR: path.join(process.cwd(), 'data/deno'),
+        HOME: process.env.HOME
+      }
+    });
+    proc.stdin.write(`import __internal_log from "./src/lib/demo-exec-lib.ts";` + code.replace('__internal_log(console.log(', '(console.log('));
+    proc.stdin.end();
+
+    const log = (chunk) => {
+      try {
+        data += chunk.toString().slice(0, 3000);
+      } catch (error) {
+        data += '[error writing string]';
+      }
+    }
+    proc.stdout.on('data', log);
+    proc.stderr.on('data', log);
+
+    const timer = setTimeout(() => {
+      errorCode = -2;
+      proc.kill();
+    }, EVAL_TIMEOUT);
+
+    proc.on('exit', async(exit) => {
+      clearInterval(timer);
+
+      if(errorCode !== -2) {
+        errorCode = exit;
+      } else {
+        data = '[Operation Timed Out...]';
+      }
+
+      if(!m) { await mProm }
+      m.edit(getMessage());
+    });
+  }
+
   const mProm = msg.channel.send(getMessage());
   mProm.then(x => m = x);
-
-  const proc = child_process.spawn('deno', ['run', '--unstable', '-q', '-'], {
-    stdio: 'pipe',
-    env: {
-      NO_COLOR: 'true',
-      DENO_DIR: path.join(process.cwd(), 'data/deno'),
-      HOME: process.env.HOME
-    }
-  });
-  proc.stdin.write(`import __internal_log from "./src/lib/demo-exec-lib.ts";` + code.replace('__internal_log(console.log(', '(console.log('));
-  proc.stdin.end();
-
-  const log = (chunk) => {
-    try {
-      data += chunk.toString().slice(0, 3000);
-    } catch (error) {
-      data += '[error writing string]';
-    }
-  }
-  proc.stdout.on('data', log);
-  proc.stderr.on('data', log);
-
-  const timer = setTimeout(() => {
-    errorCode = -2;
-    proc.kill();
-  }, EVAL_TIMEOUT);
-
-  proc.on('exit', async(exit) => {
-    clearInterval(timer);
-
-    if(errorCode !== -2) {
-      errorCode = exit;
-    } else {
-      data = '[Operation Timed Out...]';
-    }
-
-    if(!m) { await mProm }
-    m.edit(getMessage());
-  });
 })
 
 DocCommand({

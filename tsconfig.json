@@ -5,6 +5,7 @@
     "jsx": "preserve",
     "sourceMap": true,
     "allowJs": true,
+    "resolveJsonModule": true,
   },
   "typeAcquisition": {
     "include": [

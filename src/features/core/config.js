@@ -1,3 +1,7 @@
+const { Emoji, Message, User, GuildMember, Role, Channel } = require('discord.js');
+
+require('auto-api');
+
 function compare(a, b) {
   if (!b) return -1
   return a === b ? 0 : a > b ? -1 : 1;
@@ -33,8 +37,29 @@ CommandHandler(
         .filter(x => !categories.core.includes(x))
         .filter(x => features[x].isAllowed ? features[x].isAllowed(msg.guild) : true)
         .sort((a, b) => compare(features[b].category, features[a].category))
-        .map(x => ` - ${config.loadedFeatures.includes(x) ? EMOJI_SWITCH_ON : EMOJI_SWITCH_OFF} ${features[x].category ? `\`${features[x].category}:\`​**\`${x}\`**` : `**\`${x}\`**`}`)
+        .map(x => {
+          const permissions = features[x].permissions.every((permission) => {
+            return msg.guild.me.hasPermission(permission.permission);
+          });
+          return` - ${config.loadedFeatures.includes(x) ? Emotes.switch_on : Emotes.switch_off} ${features[x].category ? `\`${features[x].category}:\`​**\`${x}\`**` : `**\`${x}\`**`} ${permissions ? '' : ` ${Emotes.x} Missing Permissions`}`;
+        })
         .join('\n'),
+      ``,
+      ...config.loadedFeatures.map((feature) => {
+        const x = features[feature];
+        if(x) {
+          if(x.permissions.length > 0) {
+            return x.permissions.map((permission) => {
+              console.log(permission, )
+              if (msg.guild.me.hasPermission(permission.permission)) {
+                return null;
+              } else {
+                return `Feature \`${feature}\` missing permission \`${permission.permission}\`${!permission.required ? ' (optional)' : ''}`
+              }
+            });
+          }
+        }
+      }).flat().filter(Boolean),
       ``,
       `Use \`${config.prefix}config features +[feature]\` to add and \`${config.prefix}config features -[feature]\` to remove features.`
     ].join('\n'))
@@ -53,67 +78,94 @@ CommandHandler(
         changed = true;
         config.loadedFeatures.push(feature);
         features[feature].onLoad.forEach(x => x(msg.guild));
-        return `${EMOJI_SWITCH_ON} Enabled \`${feature.replace(/\n/g, '').replace(/`/g, '\\\\`')}\``
+        return `${Emotes.switch_on} Enabled \`${feature.replace(/\n/g, '').replace(/`/g, '\\\\`')}\``
       }
     }
     function remove(feature) {
       if (config.loadedFeatures.includes(feature)) {
         config.loadedFeatures = config.loadedFeatures.filter(x => x !== feature);
         features[feature].onUnload.forEach(x => x(msg.guild));
-        return `${EMOJI_SWITCH_OFF} \`${feature.replace(/\n/g, '').replace(/`/g, '\\\\`')}\``
+        return `${Emotes.switch_off} \`${feature.replace(/\n/g, '').replace(/`/g, '\\\\`')}\``
       } else {
         changed = true;
         return null;
       }
     }
 
-    const logs = featureChanges.map(x => {
+    featureChanges.map(x => {
       const change = x[0];
       const feature = x.slice(1).toLowerCase();
+      const func = (change === '+' ? add : remove);
 
       if(categories[feature]) {
-        return categories[feature].map(x => (change === '+' ? add : remove)(x));
-      } else if ((features[feature] && (features[feature].isAllowed ? features[feature].isAllowed(msg.guild) : true ))) {
-        return (change === '+' ? add : remove)(feature)
+        categories[feature].forEach(x => func(x));
+      } else if (features[feature]) {
+        func(feature);
       } else if (feature === '*' || feature === 'all') {
-        if(change === '+') {
-          return Object.keys(features).map(x => add(x));
-        } else {
-          return Object.keys(features).map(x => remove(x));
-        }
-      } else {
-        return `Feature \`${feature.replace(/\n/g, '').replace(/`/g, '\\\\`')}\` does not exist.`
+        Object.keys(features).forEach(x => (change === '+' ? add : remove)(x));
       }
     }).flat().filter(Boolean);
     if(changed) {
       writeConfig();
     }
-    msg.channel.send([
-      `Changelog:`,
-      logs.length === 0 ? '- No actions were taken' : logs.map(x => ` - ${x}`).join('\n'),
-      ``,
-      `Bot Features:`,
-      Object
-        .keys(features)
-        .filter(x => !categories.core.includes(x))
-        .filter(x => features[x].isAllowed ? features[x].isAllowed(msg.guild) : true)
-        .sort((a, b) => compare(features[b].category, features[a].category))
-        .map(x => ` - ${config.loadedFeatures.includes(x) ? EMOJI_SWITCH_ON : EMOJI_SWITCH_OFF} ${features[x].category ? `\`${features[x].category}:\`​**\`${x}\`**` : `**\`${x}\`**`}`)
-        .join('\n'),
-      ``,
-      `Use \`${config.prefix}config features +[feature]\` to add and \`${config.prefix}config features -[feature]\` to remove features.`
-    ].join('\n'))
   }),
 );
 
-CommandHandler(/^(config|cfg|c)$/, RequiresAdmin, ({ msg, config }, ) => {
+function configPropertyToString(configProp, val) {
+  if (typeof val === 'boolean') {
+    if (val) {
+      return `${Emotes.switch_on} **On**`;
+    } else {
+      return `${Emotes.switch_on} **Off**`;
+    }
+  }
+  if (val instanceof Emoji) {
+    return `**Emoji: **${val}**`;
+  }
+  if (val instanceof Message) {
+    return `**Message by \`${val.author.tag}\` in ${val.channel}**`;
+  }
+  if (val instanceof GuildMember) {
+    return `**Member: \`${val.user.tag}\`**`;
+  }
+  if (val instanceof Role) {
+    return `**Role: \`${val.name}\`**`;
+  }
+  if (val instanceof Channel) {
+    if (val.isText()) {
+      return `**Text Channel: ${val}**`;
+    } else {
+      return `**Voice Channel: *${Emotes.base.loud_sound} ${val.name}***`;
+    }
+  }
+  return `**\`${val}\`**`;
+}
+
+CommandHandler(/^(config|cfg|c)$/, RequiresAdmin, ({ msg, config, getConfig, featureData }) => {
   msg.channel.send([
-    `**Automation Bot Config**`,
-    `[core config]`,
+    `**AutoBot Configuration**`,
+    `__[how to configure]__`,
     `- \`${config.prefix}config\` help. (aliases: cfg, c)`,
-    `- \`${config.prefix}config prefix [new prefix]\` view/change prefix. (alias: p)`,
-    `- \`${config.prefix}config features\` features menu. (alias: f)`,
-    `- \`${config.prefix}config features [+-features...]\` add/remove features. (alias: f)`,
+    `- \`${config.prefix}config features ...\` features menu. (alias: f)`,
+    `- \`${config.prefix}config <property> <new value>\` Change config.`,
+    `- \`${config.prefix}config <property> default\` Change config to default.`,
+    '',
+    `__[core]__`,
+    `- \`prefix\` = \`${config.prefix}\` view/change prefix. (alias: p)`,
+    '',
+    ...config.loadedFeatures
+      .map(x => featureData.features[x])
+      .filter(x => x.config && Object.keys(x.config).length > 0)
+      .map((x) => {
+        return [
+          `__[${x.fullName}]__`,
+          ...Object.keys(x.config).map(configKey => {
+            return `- \`${configKey}\` = ${configPropertyToString(x.config[configKey], getConfig(x.id)[configKey])} ${x.config[configKey].desc || 'No Description'}`;
+          }),
+          '',
+        ]
+      })
+      .flat(Infinity)
   ].join('\n'))
 });
 

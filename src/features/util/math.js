@@ -8,6 +8,14 @@ const replacements = [
   ['²', '^2']
 ]
 
+const getConfig = Config({
+  enableShorthandMath: {
+    type: 'boolean',
+    desc: 'Listen for the shorthand math "=" prefix.',
+    default: true
+  }
+})
+
 function mathCommand(msg, expression, quietMode) {
   const id = msg.channel.id;
 
@@ -57,7 +65,7 @@ function mathCommand(msg, expression, quietMode) {
 }
 
 GlobalMessageHandler(({ msg }) => {
-  if (msg.content.startsWith('=')) {
+  if (msg.content.startsWith('=') && getConfig(msg.guild).enableShorthandMath) {
     const expression = msg.content.substr(1);
     mathCommand(msg, expression, true);
   }
