@@ -166,7 +166,7 @@ async function questionFetch(guild) {
   running = false
 }
 
-// OnInterval(questionFetch, ONE_HOUR)
+OnInterval(questionFetch, ONE_HOUR)
 
 function Cooldown(seconds) {
   const cooldown = new CacheMap({ ttl: seconds })
@@ -185,7 +185,6 @@ function Cooldown(seconds) {
 }
 
 CommandHandler(/^questions$/, UserWhitelist(allowedUsers), Cooldown(500), ({ msg }) => {
-  msg.channel.send('question stuff is gonna be down for now while bot is getting some other features added.')
-  // questionFetch(msg.guild)
-  // msg.react('742556391356629062')
+  questionFetch(msg.guild)
+  msg.react('742556391356629062')
 })
