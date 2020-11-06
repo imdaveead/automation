@@ -45,22 +45,24 @@ CommandHandler(
         })
         .join('\n'),
       ``,
-      ...config.loadedFeatures.map((feature) => {
-        const x = features[feature];
-        if(x) {
-          if(x.permissions.length > 0) {
-            return x.permissions.map((permission) => {
-              console.log(permission, )
-              if (msg.guild.me.hasPermission(permission.permission)) {
-                return null;
-              } else {
-                return `Feature \`${feature}\` missing permission \`${permission.permission}\`${!permission.required ? ' (optional)' : ''}`
-              }
-            });
+      ...pipe(
+        config.loadedFeatures.map((feature) => {
+          const x = features[feature];
+          if(x) {
+            if(x.permissions.length > 0) {
+              return x.permissions.map((permission) => {
+                console.log(permission, )
+                if (msg.guild.me.hasPermission(permission.permission)) {
+                  return null;
+                } else {
+                  return `Feature \`${feature}\` missing permission \`${permission.permission}\`${!permission.required ? ' (optional)' : ''}`
+                }
+              });
+            }
           }
-        }
-      }).flat().filter(Boolean),
-      ``,
+        }).flat().filter(Boolean),
+        x => x.length > 0 ? ['**Permission Errors**', ...x, ''] : x
+      ),
       `Use \`${config.prefix}config features +[feature]\` to add and \`${config.prefix}config features -[feature]\` to remove features.`
     ].join('\n'))
   }),
@@ -78,14 +80,12 @@ CommandHandler(
         changed = true;
         config.loadedFeatures.push(feature);
         features[feature].onLoad.forEach(x => x(msg.guild));
-        return `${Emotes.switch_on} Enabled \`${feature.replace(/\n/g, '').replace(/`/g, '\\\\`')}\``
       }
     }
     function remove(feature) {
       if (config.loadedFeatures.includes(feature)) {
         config.loadedFeatures = config.loadedFeatures.filter(x => x !== feature);
         features[feature].onUnload.forEach(x => x(msg.guild));
-        return `${Emotes.switch_off} \`${feature.replace(/\n/g, '').replace(/`/g, '\\\\`')}\``
       } else {
         changed = true;
         return null;
@@ -104,7 +104,8 @@ CommandHandler(
       } else if (feature === '*' || feature === 'all') {
         Object.keys(features).forEach(x => (change === '+' ? add : remove)(x));
       }
-    }).flat().filter(Boolean);
+    });
+
     if(changed) {
       writeConfig();
     }
@@ -147,8 +148,9 @@ CommandHandler(/^(config|cfg|c)$/, RequiresAdmin, ({ msg, config, getConfig, fea
     `__[how to configure]__`,
     `- \`${config.prefix}config\` help. (aliases: cfg, c)`,
     `- \`${config.prefix}config features ...\` features menu. (alias: f)`,
-    `- \`${config.prefix}config <property> <new value>\` Change config.`,
-    `- \`${config.prefix}config <property> default\` Change config to default.`,
+    `- Note: you cannot modify config as of now`,
+    // `- \`${config.prefix}config <property> <new value>\` Change config.`,
+    // `- \`${config.prefix}config <property> default\` Change config to default.`,
     '',
     `__[core]__`,
     `- \`prefix\` = \`${config.prefix}\` view/change prefix. (alias: p)`,
