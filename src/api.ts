@@ -4,6 +4,7 @@ declare global {
   interface ModuleMeta {
     name: string;
     desc: string;
+    library?: boolean;
   }
   interface CommandEvent {
     next: (args: any[]) => void;
@@ -12,6 +13,7 @@ declare global {
     client: Client;
     config: Config;
     writeConfig: () => void;
+    getConfig: (feature: string) => any;
   }
   interface DiscordEvent {
     next: (args: any[]) => void;
@@ -35,14 +37,17 @@ declare global {
   }
   type ConfigProp<Value extends keyof ConfigValueTypeToType, Key extends keyof ConfigValueTypeToType> = {
     type: Value,
+    desc: string;
     default?: ConfigValueTypeToInput[Value];
     validate?: (v: ConfigValueTypeToType[Value]) => boolean;
   } | {
     type: 'set',
+    desc: string;
     valueType: Value,
     validate?: (v: ConfigValueTypeToType[Value]) => boolean;
   } | {
     type: 'map',
+    desc: string;
     keyType: Key,
     valueType: Value,
     validate?: (v: ConfigValueTypeToType[Value]) => boolean;
