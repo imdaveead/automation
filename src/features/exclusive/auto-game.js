@@ -48,7 +48,7 @@ OnDiscordEvent('guildMemberRemove', async({ guild }, member) => {
   const duration = Date.now() - member.joinedTimestamp;
   console.log('j', member.user.tag, duration);
   
-  const lbChannel = guild.channels.cache.find(x => x.name === 'leaderboard-log');
+  const lbChannel = guild.channels.cache.find(x => x.id === '775360601965723690');
   console.log('j', lbChannel.id);
 
   if (member.roles.cache.find(x => x.name.includes('Admin'))) {
