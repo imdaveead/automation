@@ -39,7 +39,7 @@ async function updateLeaderboard(guild) {
       .sort((a, b) => b.duration - a.duration)
       .slice(0, 5)
       .map((x, i) => {
-        return `**${i + 1}.** ${x.member || x.name}${!x.joined ? ' [left]' : ''} - **${juration.humanize(Math.floor(x.duration / 1000))}**`;
+        return `**${i + 1}.** ${x.member || x.name}${!x.joined ? ' [gone]' : ''} - **${juration.humanize(Math.floor(x.duration / 1000))}**`;
       })
   ])
 }
@@ -55,7 +55,7 @@ OnDiscordEvent('guildMemberRemove', async({ guild }, member) => {
     lbChannel.send(`**${member.user.name}** was an admin and left. No score.`)
   } else {
     const time = juration.humanize(Math.floor(duration/1000));
-    lbChannel.send(`**${member.user.username}** left. Time: **${time}**`);
+    lbChannel.send(`**${member.user.username}** disconnected. Time: **${time}**`);
 
     leaderboard[member.id] = {
       name: member.user.username,
