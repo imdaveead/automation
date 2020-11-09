@@ -1,5 +1,6 @@
 const rawEmojiList = {
   // davecode
+  auto: '775211790236778507',
   tictactoe: '528652344330682399',
   outlined_safe: '769164416792264704',
   hunter_plate: '769164469406138379',
@@ -8,8 +9,6 @@ const rawEmojiList = {
   davecode_purple: '771713785937264650',
   davecode_green: '771713873299898399',
   davecode_blue: '771714014341890128',
-  auto_gif: '771714014341890128',
-  auto: '771714014341890128',
 
   // crbt
   switch_off: '764847050734698497',
