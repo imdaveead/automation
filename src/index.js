@@ -265,7 +265,7 @@ async function checkGuildPermissionAndWait(guild) {
 async function checkGuildPermissionAndLeave(guild) {
   const allowed = await checkGuildPermission2(guild);
   if(!allowed) {
-    // guild.leave();
+    guild.leave();
     console.log('Not allowed in ' + guild.id + ' aka ' + guild.name)
     return false;
   }

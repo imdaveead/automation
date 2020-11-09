@@ -28,6 +28,7 @@ OnLoad(async(guild) => {
 });
 
 OnDiscordEvent('messageReactionAdd', async({}, react, user) => {
+  console.log(user.tag, react.emoji.id)
   if(react.message.id === targetMessage) {
     const guild = react.message.guild;
     const role = reactionRoleMaps[react.emoji.id];

@@ -68,7 +68,7 @@ const pingLines = [
 const blank = "\\_\\_\\_";
 CommandHandler(/^ping/, async({ msg, client }) => {
   const randomLine = randomOf(pingLines).replace('{name}', () => msg.member.displayName)
-  const firstLine = `${Emotes.bill_paddle_game} ${randomLine} ${Emotes.auto_gif}`;
+  const firstLine = `${Emotes.bill_paddle_game} ${randomLine} ${Emotes.auto}`;
 
   const getText = (a, b, c) => [
     `${firstLine}`,
