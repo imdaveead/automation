@@ -34,7 +34,7 @@ async function updateLeaderboard(guild) {
       })
   ]
   msg.edit([
-    '**Leaderboard** (Updates every 15 minutes)',
+    '**Leaderboard** (Updates every 90 seconds)',
     ...fullLeaderboard
       .sort((a, b) => b.duration - a.duration)
       .slice(0, 5)
@@ -93,4 +93,4 @@ CommandHandler(/^updateLeaderboard/, RequiresAdmin, ({ msg }) => {
 })
 OnInterval((guild) => {
   updateLeaderboard(guild);
-}, 15 * 60 * 1000)
+}, 1.5 * 60 * 1000)
