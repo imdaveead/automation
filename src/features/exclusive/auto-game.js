@@ -38,8 +38,8 @@ async function updateLeaderboard(guild) {
     ...fullLeaderboard
       .sort((a, b) => b.duration - a.duration)
       .slice(0, 5)
-      .map((key, i) => {
-        return `**${i + 1}.** ${key.member || key.name} - ${juration.humanize(Math.floor(key.duration / 1000))}`;
+      .map((x, i) => {
+        return `**${i + 1}.** ${x.member || x.name}${!x.joined ? ' [left]' : ''} - **${juration.humanize(Math.floor(x.duration / 1000))}**`;
       })
   ])
 }
@@ -59,7 +59,7 @@ OnDiscordEvent('guildMemberRemove', async({ guild }, member) => {
 
     leaderboard[member.id] = {
       name: member.user.username,
-      duration: duration,
+      duration: Math.max(duration, leaderboard[member.id] ? leaderboard[member.id].duration : 0),
     };
     await fs.writeJSON('data/leaderboard.json', leaderboard, { spaces: 2 });
     updateLeaderboard(guild)
