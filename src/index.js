@@ -11,6 +11,7 @@ alias.addAlias('auto-api', require.resolve('./lib/api.js'));
 
 // cspell:disable
 const hardWhitelistedGuilds = [
+  "775338764159287313", // auto's server Just in Case™
   "516410163230539837", // davecode.me   Just in Case™
   "738258206551441478", // sequencer     Just in Case™
   "453211769423265802", // nerd squad    Just in Case™
@@ -349,6 +350,7 @@ client.on('message', async(msg) => {
             msg,
             client,
             config,
+            guild: msg.guild,
             writeConfig: () => writeConfig(msg.guild.id, config),
             getConfig: (feature) => getFeatureConfig(feature, msg.guild),
             featureData: { categories, features },
@@ -382,6 +384,7 @@ client.on('message', async(msg) => {
         msg,
         client,
         config,
+        guild: msg.guild,
         writeConfig: () => writeConfig(msg.guild.id, config),
         getConfig: (feature) => getFeatureConfig(feature, guild),
         featureData: { config, features },
@@ -397,21 +400,21 @@ client.on('message', async(msg) => {
   });
 });
 
-function getGuildIdFromObject(x) {
+function getGuildFromObject(x) {
   return x 
-    ? x.guild && x.guild.id
-      || x.message && x.message.guild && x.message.guild.id
+    ? x.guild && x.guild
+      || x.message && x.message.guild && x.message.guild
     : null;
 }
 
 function eventHandler(evName) {
   return async(...args) => {
-    const gid = getGuildIdFromObject(args[0]);
-    if(!gid) {
+    const guild = getGuildFromObject(args[0]);
+    if(!guild) {
       console.log('Couldn\'t get Guild on ' + evName);
     }
-    if (gid) {
-      const config = await getGuildConfig(gid)
+    if (guild) {
+      const config = await getGuildConfig(guild.id)
       const featureStrings = [...categories.core, ...config.loadedFeatures];
       featureStrings.forEach((name) => {
         if(!(name in features)) {
@@ -425,6 +428,7 @@ function eventHandler(evName) {
           const event = {
             client,
             config,
+            guild,
             writeConfig: () => writeConfig(args[0].guild.id, config),
             getConfig: (feature) => getFeatureConfig(feature, guild),
             featureData: { config, features },
