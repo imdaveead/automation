@@ -55,14 +55,26 @@ OnDiscordEvent('guildMemberRemove', async({ guild }, member) => {
     lbChannel.send(`**${member.user.name}** was an admin and left. No score.`)
   } else {
     const time = juration.humanize(Math.floor(duration/1000));
-    lbChannel.send(`**${member.user.username}** disconnected. Time: **${time}**`);
+
+    let contacted = false;
+    try {
+      const dm = await member.createDM();
+      const m = await dm.send([
+        'You were disconnected from Discord, causing you to get kicked from the Auto Internal Server game.',
+        `Your time was **${time}**.`,
+        'You can rejoin at <https://discord.gg/ymjDDCBMn4>'
+      ].join('\n'));
+      contacted = !!m;
+    } catch (error) {}
+
+    lbChannel.send(`**${member.user.username}** disconnected. Time: **${time}**${contacted ? '' : '. They could not be contacted.'}`);
 
     leaderboard[member.id] = {
       name: member.user.username,
       duration: Math.max(duration, leaderboard[member.id] ? leaderboard[member.id].duration : 0),
     };
     await fs.writeJSON('data/leaderboard.json', leaderboard, { spaces: 2 });
-    updateLeaderboard(guild)
+    updateLeaderboard(guild);
   }
 });
 
