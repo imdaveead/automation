@@ -40,6 +40,7 @@ const rawEmojiList = {
   bill_slow_down: '766081667726835722',
   bill_mail_bird: '766097186353315872',
   bill_believability_bob: '766097114631372830',
+  bill_paddle_game: '766073855923060757',
   clock_rotate: '766097135707619338',
 }
 
