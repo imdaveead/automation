@@ -32,18 +32,20 @@ CommandHandler(/^(paint|color).*/, async({ msg }) => {
 
   const hex = color.hex();
 
-  let role = msg.guild.roles.find(role => role.name === hex);
+  let role = msg.guild.roles.cache.find(role => role.name === hex);
 
   if (!role) {
-    if (msg.guild.roles.length === 250) {
+    if (msg.guild.roles.cache.length === 250) {
       msg.channel.send(`\`ERROR\`: The Discord Role Limit of 250 Roles has been hit.`);
       return;
     } else {
       try {
-        role = await msg.guild.createRole({
-          name: hex,
-          color: color.rgbNumber(),
-          permissions: 0,
+        role = await msg.guild.roles.create({
+          data: {
+            name: hex,
+            color: color.rgbNumber(),
+            permissions: 0,
+          }
         });
       } catch (error) {
         msg.channel.send(`\`ERROR\`: Could not create a role`);
@@ -53,14 +55,14 @@ CommandHandler(/^(paint|color).*/, async({ msg }) => {
   }
 
   try {
-    const rolesToRemove = msg.member.roles.filter(role => role.name.startsWith('#') && role.name !== hex);
+    const rolesToRemove = msg.member.roles.cache.filter(role => role.name.startsWith('#') && role.name !== hex);
     rolesToRemove.map(async (role) => {
-      msg.member.removeRole(role);
-      if (role.members.size === 0) {
+      msg.member.roles.remove(role);
+      if (role.members.cache.size === 0) {
         role.delete();
       }
     });
-    await msg.member.addRole(role);
+    await msg.member.roles.add(role);
     msg.channel.send(`painted to \`${hex}\``);
   } catch (error) {
     msg.channel.send(`\`ERROR\`: Could not assign role. check permission data.`);
