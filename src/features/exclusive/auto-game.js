@@ -94,3 +94,11 @@ CommandHandler(/^updateLeaderboard/, RequiresAdmin, ({ msg }) => {
 OnInterval((guild) => {
   updateLeaderboard(guild);
 }, 1.5 * 60 * 1000)
+
+DocCommand({
+  usage: 'score',
+  desc: 'Shows your score.',
+  examples: [
+    'score'
+  ]
+})

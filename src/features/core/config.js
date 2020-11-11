@@ -86,8 +86,8 @@ CommandHandler(
       if (config.loadedFeatures.includes(feature)) {
         config.loadedFeatures = config.loadedFeatures.filter(x => x !== feature);
         features[feature].onUnload.forEach(x => x(msg.guild));
-      } else {
         changed = true;
+      } else {
         return null;
       }
     }
