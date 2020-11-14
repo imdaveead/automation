@@ -101,8 +101,13 @@ CommandHandler(
       .setFooter(`${msg.member.displayName}`, msg.author.avatarURL)
   }
 
-  if(danger) {
+  let m = null;
 
+  if(danger) {
+    const result = eval(code1 || code2);
+    data = util.inspect(result, false, 4, false);
+    if(!m) { await mProm }
+    m.edit(getMessage());
   } else {
     const parsed = ts.createSourceFile('discord.ts', code1 || code2, ts.ScriptTarget.ES5, true);
     const transformed = ts.transform(
@@ -132,8 +137,6 @@ CommandHandler(
       ]
     );
     const code = printer.printFile(transformed.transformed[0]);
-
-    let m = null;
 
     const proc = child_process.spawn('deno', ['run', '--unstable', '-q', '-'], {
       stdio: 'pipe',
