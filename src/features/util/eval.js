@@ -1,6 +1,7 @@
 const child_process = require('child_process');
 const path = require('path');
 const ts = require('typescript');
+const util = require('util');
 const { MessageEmbed } = require('discord.js');
 const { randomOf } = require('@reverse/random');
 
@@ -103,10 +104,40 @@ CommandHandler(
 
   let m = null;
 
+  const mProm = msg.channel.send(getMessage());
+  mProm.then(x => m = x);
+
   if(danger) {
-    const result = eval(code1 || code2);
-    data = util.inspect(result, false, 4, false);
-    if(!m) { await mProm }
+    try {
+      try {
+        const result = await eval(`(async()=>${code1 || code2})`)();
+        data = util.inspect(result, false, 4, false);
+        errorCode = 0;
+      } catch (error) {
+        if (error.stack.startsWith('SyntaxError')) {
+          const result = await eval(`(async()=>{${code1 || code2}})`)();
+          data = util.inspect(result, false, 4, false);
+          errorCode = 0;
+        } else {
+          throw error
+        }
+      }
+    } catch (error) {
+      const stackLines = error.stack
+        .split('\n')
+        .filter((x) => x.includes('eval at <anonymous>'))
+        .map(x => x.replace(
+          /\(eval at <anonymous> (.*?), <anonymous>:(.*?):(.*?)\)/,
+          '(line $2:$3)'
+        ));
+      stackLines[stackLines.length - 1] = stackLines[stackLines.length - 1].replace('at eval', `at ${config.prefix}eval -D`);
+      data = error.name + ': ' + error.message + '\n' + stackLines.join('\n');
+      errorCode = 1;
+    }
+
+    // the eval is run while the message is sending, so the m
+    // variable might not exist yet.
+    if(!m) { await mProm; }
     m.edit(getMessage());
   } else {
     const parsed = ts.createSourceFile('discord.ts', code1 || code2, ts.ScriptTarget.ES5, true);
@@ -177,9 +208,6 @@ CommandHandler(
       m.edit(getMessage());
     });
   }
-
-  const mProm = msg.channel.send(getMessage());
-  mProm.then(x => m = x);
 })
 
 DocCommand({
