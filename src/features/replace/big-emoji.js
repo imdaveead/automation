@@ -20,8 +20,8 @@ GlobalMessageHandler(async ({
     msg
 }) => {
     if (msg.content.length <= 10) { // The biggest emoji is actually 5 emojis together and each gets 2 characters
-        if (msg.content.match(/[\w~`!@#£€$¢¥§%°^&*()-_+={}[\]|\\\/:;"'<>,.?]+/)) return; // If the message contains anything that's not an emoji die
         let emoji = emojiUnicode(msg.content).toString().replace(' ', '-');
+        if (((emoji.match(/-/g) || []).length*5)+5 > emoji[i].length) return; // Cancel if unicode is not emoji
 
         replaceMessage(msg, EMOJI_BASE + emoji + '.png');
 
