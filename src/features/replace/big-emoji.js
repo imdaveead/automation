@@ -19,8 +19,8 @@ const CUSTOM_EMOJI_BASE = 'https://cdn.discordapp.com/emojis/';
 GlobalMessageHandler(async ({
     msg
 }) => {
-    if (msg.content.length <= 10) { // The biggest emoji is actually 5 emojis together and each gets 2 characters
-        let emoji = emojiUnicode(msg.content).toString().replace(' ', '-');
+    if (msg.content.length <= 14) { // The biggest emoji is actually 5 emojis together and each gets 2 characters
+        let emoji = emojiUnicode(msg.content).toString().replaceAll(' ', '-');
         if (((emoji.match(/-/g) || []).length*5)+5 > emoji.length) return; // Cancel if unicode is not emoji
 
         replaceMessage(msg, EMOJI_BASE + emoji + '.png');
