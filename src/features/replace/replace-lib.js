@@ -19,7 +19,7 @@ async function replaceMessage(msg, replacementText) {
   await Promise.all([
     autoHook.send(replacementText, {
       username: msg.member.displayName,
-      avatarUrl: msg.author.displayAvatarURL({ format: 'png' }), // discord.js v12
+      avatarURL: msg.author.displayAvatarURL({ format: 'png' }), // discord.js v12
     }),
     msg.delete().catch(() => {}),
   ]);
