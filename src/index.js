@@ -11,14 +11,23 @@ alias.addAlias('auto-api', require.resolve('./lib/api.js'));
 
 // cspell:disable
 const hardWhitelistedGuilds = [
-  "775338764159287313", // auto's server Just in Case™
-  "516410163230539837", // davecode.me   Just in Case™
-  "738258206551441478", // sequencer     Just in Case™
-  "453211769423265802", // nerd squad    Just in Case™
-  "743828368931291146", // broom closet  Just in Case™
+  // just in case.
+  "775338764159287313", // auto's server
+  "516410163230539837", // davecode.me
+  "453211769423265802", // nerd squad
+  "755117849848053930", // Holden's
+  "403966971147845636", // bkly server
+  
+  // emotes
+  "766071798357295124", // emote server 1
+  "766080134540427265", // emote server 2
+  "743828368931291146", // broom closet
+  "779169028907991072", // broom closet
+  "730936788444512296", // more smilie spots
+
   // Servers I am not in but agreeing to run auto in.
   "366510359370137610", // r/billwurtz
-  "766146576212426763", // Church of Automation
+  "738747595438030888", // CRBT
 ];
 // cspell:enable
 
