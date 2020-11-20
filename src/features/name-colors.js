@@ -58,7 +58,7 @@ CommandHandler(/^(paint|color).*/, async({ msg }) => {
     const rolesToRemove = msg.member.roles.cache.filter(role => role.name.startsWith('#') && role.name !== hex);
     rolesToRemove.map(async (role) => {
       msg.member.roles.remove(role);
-      if (role.members.cache.size === 0) {
+      if (role.members.size === 1) {
         role.delete();
       }
     });

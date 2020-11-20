@@ -10,11 +10,10 @@ const rawEmojiList = {
   davecode_green: '771713873299898399',
   davecode_blue: '771714014341890128',
 
-  // crbt
-  switch_off: '764847050734698497',
-  switch_on: '764847050755801129',
-  switch_on_disabled: '768832720557047829',
-  x: '764847045114331157',
+  switch_off: '779359137917829142',
+  switch_on: '779359139242442784',
+  x: '779359501584433173',
+  check: '779359901754327080',
 
   // nerd squad
   smiley_jalter: '740805301753872404',
