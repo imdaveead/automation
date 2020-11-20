@@ -40,7 +40,7 @@ OnDiscordEvent('messageReactionAdd', async({}, react, user) => {
     const member = await guild.member(user).fetch();
     if (member && role) {
       if (requiresVerify.includes(role.id) && !(member.roles.resolve('771715526929809428'))) {
-
+        return
       }
       member.roles.add(role);
     }
