@@ -325,8 +325,8 @@ client.on('ready', async() => {
   console.log(`Loaded ${Object.keys(features).length} features`);
 });
 
-client.on('message', async(msg) => {
-  if(msg.author.bot) return;
+async function handleMessage(msg, ignoreBot) {
+  if(msg.author.bot && !ignoreBot) return;
   if(msg.author.id === DAVE && msg.content.trim() === '$w') {
     sendWelcome(msg.channel);
     msg.delete().catch(() => {});
@@ -363,6 +363,7 @@ client.on('message', async(msg) => {
             writeConfig: () => writeConfig(msg.guild.id, config),
             getConfig: (feature) => getFeatureConfig(feature, msg.guild),
             featureData: { categories, features },
+            loopback: x => handleMessage(x, true),
             next
           };
 
@@ -397,6 +398,7 @@ client.on('message', async(msg) => {
         writeConfig: () => writeConfig(msg.guild.id, config),
         getConfig: (feature) => getFeatureConfig(feature, guild),
         featureData: { config, features },
+        loopback: x => handleMessage(x, true),
         next
       };
 
@@ -407,7 +409,8 @@ client.on('message', async(msg) => {
       next();
     });
   });
-});
+}
+client.on('message', handleMessage);
 
 function getGuildFromObject(x) {
   return x 
@@ -441,6 +444,7 @@ function eventHandler(evName) {
             writeConfig: () => writeConfig(args[0].guild.id, config),
             getConfig: (feature) => getFeatureConfig(feature, guild),
             featureData: { config, features },
+            loopback: x => handleMessage(x, true),
             next
           };
         
