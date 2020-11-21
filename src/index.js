@@ -26,7 +26,6 @@ const hardWhitelistedGuilds = [
   "730936788444512296", // more smilie spots
 
   // Servers I am not in but agreeing to run auto in.
-  "366510359370137610", // r/billwurtz
   "738747595438030888", // CRBT
 ];
 // cspell:enable
