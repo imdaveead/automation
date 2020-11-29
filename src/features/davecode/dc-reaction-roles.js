@@ -17,10 +17,6 @@ const reactionRoleMaps = {
   '567088349484023818': '771703263903875112',
 }
 
-const requiresVerify = [
-  '774378860329697310'
-]
-
 RequiredPermission('MANAGE_ROLES')
 
 FeatureAllowed((guild) => {
@@ -39,7 +35,7 @@ OnDiscordEvent('messageReactionAdd', async({}, react, user) => {
     const role = reactionRoleMaps[react.emoji.id || react.emoji.name];
     const member = await guild.member(user).fetch();
     if (member && role) {
-      if (requiresVerify.includes(role.id) && !(member.roles.resolve('771715526929809428'))) {
+      if (role === '774378860329697310' && !(member.roles.cache.has('771715526929809428'))) {
         return
       }
       member.roles.add(role);
