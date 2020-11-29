@@ -10,7 +10,6 @@ DocCommand({
 const DAVE = '244905301059436545';
 
 CommandHandler(/^sudo\s+((?:.|\n)+)/, RequiresAdmin, ({ msg, config, loopback }, data) => {
-  console.log('ok')
   const userQuery = data.slice(0, data.indexOf(config.prefix)).trim();
   const command = data.slice(data.indexOf(config.prefix)).trim();
 
@@ -44,10 +43,6 @@ CommandHandler(/^sudo\s+((?:.|\n)+)/, RequiresAdmin, ({ msg, config, loopback },
     msg.member = member;
     msg.author = member.user;
     msg.content = command;
-    console.log(msg.member.id)
-    console.log(msg.author.id)
-    console.log(msg.content)
     loopback(msg, true);
   }
 });
-// #01CD06c
