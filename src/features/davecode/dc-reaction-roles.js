@@ -9,8 +9,6 @@ const reactionRoleMaps = {
   '771713873299898399': '771712410514882580',
   // <notify streams>
   '771713785937264650': '771714617399312454',
-  // <notify podcast>
-  '🔊': '775219685372329995',
   // [opt in spoilers]
   '580592986136641536': '774378860329697310',
   // [discussion opt out]
@@ -35,9 +33,6 @@ OnDiscordEvent('messageReactionAdd', async({}, react, user) => {
     const role = reactionRoleMaps[react.emoji.id || react.emoji.name];
     const member = await guild.member(user).fetch();
     if (member && role) {
-      if (role === '774378860329697310' && !(member.roles.cache.has('771715526929809428'))) {
-        return
-      }
       member.roles.add(role);
     }
   }
