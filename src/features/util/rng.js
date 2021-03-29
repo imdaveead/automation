@@ -120,3 +120,18 @@ DocCommand({
     'uuid4',
   ]
 })
+
+
+const getConfig = Config({
+  test: {
+    type: 'string',
+    default: 'cool',
+    desc: 'coolio string'
+  }
+});
+
+CommandHandler(/^test/, ({ msg }) => {
+  const { test } = getConfig(msg.guild)
+
+  msg.channel.send(test);
+})

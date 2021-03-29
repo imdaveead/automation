@@ -26,6 +26,7 @@ const hardWhitelistedGuilds = [
   "730936788444512296", // more smilie spots
 
   // Servers I am not in but agreeing to run auto in.
+  "366510359370137610", // r/billwurtz
   "738747595438030888", // CRBT
 ];
 // cspell:enable
@@ -103,9 +104,9 @@ function getFeatureConfig(feature, guild) {
   let config = cache.get('data/' + (id) + '.guild');
   if (!config) return {};
   cache.touch('data/' + id + '.guild');
-  const obj = getFeatureConfigDefault(features[feature].config, guildInstance);
-  // return config['feature.' + feature] || getFeatureConfigDefault(features[feature].config, guildInstance);
-  return obj;
+  // const obj = getFeatureConfigDefault(features[feature].config, guildInstance);
+  return config['feature.' + feature] || getFeatureConfigDefault(features[feature].config, guildInstance);
+  // return obj;
 }
 
 function loadFeature(filename) {
@@ -154,6 +155,9 @@ function loadFeature(filename) {
     })
   }
   global.DocCommand = (...commands) => {
+    manual.push(...commands);
+  }
+  global.DocMisc = (...commands) => {
     manual.push(...commands);
   }
   global.Config = (obj) => {

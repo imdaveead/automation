@@ -13,23 +13,23 @@ Meta({
 });
 
 CommandHandler(
-  /^(config|cfg|c) (.*)$/,
+  /^(config|cfg|c)(.*)$/,
   Shift1,
   RequiresAdmin,
   // Prefix Stuff
-  SubCommand(/^(p|prefix) (.{1,64})$/, Shift1, ({ msg, config, writeConfig }, prefix) => {
+  SubCommand(/^\s+(p|prefix) (.{1,64})$/, Shift1, ({ msg, config, writeConfig }, prefix) => {
     config.prefix = prefix;
     msg.channel.send(`My prefix is now **${prefix}**`);
     writeConfig();
   }),
-  SubCommand(/^(p|prefix) .{65,}$/, Shift1, ({ msg }) => {
+  SubCommand(/^\s+(p|prefix) .{65,}$/, Shift1, ({ msg }) => {
     msg.channel.send(`**Error**: Prefix may not be longer than 64 characters.`);
   }),
-  SubCommand(/^p|prefix$/, ({ msg, config }) => {
+  SubCommand(/^\s+p|prefix$/, ({ msg, config }) => {
     msg.channel.send(`My prefix is **${config.prefix}**`);
   }),
   // Features
-  SubCommand(/^(features?|f)$/, Shift1, ({ msg, config, featureData: {features, categories} }) => {
+  SubCommand(/^(\s+features?|f)$/, Shift1, ({ msg, config, featureData: {features, categories} }) => {
     msg.channel.send([
       `Bot Features:`,
       Object
@@ -66,7 +66,7 @@ CommandHandler(
       `Use \`${config.prefix}config features +[feature]\` to add and \`${config.prefix}config features -[feature]\` to remove features.`
     ].join('\n'))
   }),
-  SubCommand(/^(features?|f) ((?:(?:\+|-)\S+)(?:(?:\s(?:\+|-)\S+)+)?)$/, Shift1, ({ msg, config, featureData: {features, categories}, writeConfig }, args) => {
+  SubCommand(/^(\s+features?|f)\s+((?:(?:\+|-)\S+)(?:(?:\s(?:\+|-)\S+)+)?)$/, Shift1, ({ msg, config, featureData: {features, categories}, writeConfig }, args) => {
     const featureChanges = args.replace(/\s+/g, ' ').split(' ');
     let changed = false;
 
@@ -110,6 +110,12 @@ CommandHandler(
       writeConfig();
     }
   }),
+  SubCommand(/^\s+([a-zA-Z0-9]+)\s+default\s*$/, ({ msg, config }, property, value) => {
+    msg.channel.send(`Set ${property} to the default`);
+  }),
+  SubCommand(/^\s+([a-zA-Z0-9]+)\s+(.*?)\s*$/, ({ msg, config }, property, value) => {
+    msg.channel.send(`Set ${property} to '${value}'`);
+  }),
 );
 
 function configPropertyToString(configProp, val) {
@@ -148,16 +154,15 @@ CommandHandler(/^(config|cfg|c)$/, RequiresAdmin, ({ msg, config, getConfig, fea
     `__[how to configure]__`,
     `- \`${config.prefix}config\` help. (aliases: cfg, c)`,
     `- \`${config.prefix}config features ...\` features menu. (alias: f)`,
-    `- Note: you cannot modify config as of now`,
-    // `- \`${config.prefix}config <property> <new value>\` Change config.`,
-    // `- \`${config.prefix}config <property> default\` Change config to default.`,
+    `- \`${config.prefix}config <property> <new value>\` Change config.`,
+    `- \`${config.prefix}config <property> default\` Change config to default.`,
     '',
     `__[core]__`,
     `- \`prefix\` = \`${config.prefix}\` view/change prefix. (alias: p)`,
     '',
     ...config.loadedFeatures
       .map(x => featureData.features[x])
-      .filter(x => x.config && Object.keys(x.config).length > 0)
+      .filter(x => x && x.config && Object.keys(x.config).length > 0)
       .map((x) => {
         return [
           `__[${x.fullName}]__`,
