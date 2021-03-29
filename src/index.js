@@ -17,7 +17,7 @@ const hardWhitelistedGuilds = [
   "453211769423265802", // nerd squad
   "755117849848053930", // Holden's
   "403966971147845636", // bkly server
-  
+
   // emotes
   "766071798357295124", // emote server 1
   "766080134540427265", // emote server 2
@@ -86,7 +86,7 @@ function resolveFeatureConfigItem(val, type, guild, async) {
     }
     return guild.channels.resolve(val.channel).messages.resolve(val.message);
   }
-  
+
   return val;
 }
 
@@ -219,7 +219,7 @@ async function getGuildConfig(guild) {
       config = await fs.readJson('data/' + id + '.guild');
     } else {
       config = {
-        prefix: '$',
+        prefix: client.user.username === 'auto' ? '$' : '!',
         loadedFeatures: []
       }
     }
@@ -231,11 +231,10 @@ async function getGuildConfig(guild) {
 
 function sendWelcome(c) {
   c.send([
-    '**Automation Bot** - by dave caruso (<https://davecode.me>)',
+    `${Emotes.auto} auto bot - by dave caruso <dave@davecde.me>)`,
     'run `$config` or `$c` to setup',
     '',
-    'Support @ davecaruso#0001',
-    'Open Source @ <https://github.com/davecaruso/automation>',
+    'Support @ dave#1866',
   ].join('\n'));
 }
 
@@ -243,7 +242,7 @@ async function checkGuildPermission2(guild) {
   const id = guild.id;
   if(!id) {
     console.log(new Error().stack);
-    return true; 
+    return true;
   }
   let verify = cache.get('data/' + (id) + '.guild.verify');
   if (!verify) {
@@ -283,10 +282,10 @@ async function checkGuildPermissionAndLeave(guild) {
 
 client.on('ready', async() => {
   console.log(`Logged in as ${client.user.tag}`);
-  
+
   client.user.setActivity({
-    name: `over ${client.guilds.cache.size} guilds ;)`,
-    type: 'WATCHING',
+    name: `with you all. it's fun ^-^`,
+    type: 'PLAYING',
   });
 
   global.Emotes = require('./emoji').mappedEmoji;
@@ -305,7 +304,7 @@ client.on('ready', async() => {
       features[name] = loadFeature(filename);
     }
   });
-  
+
   await Promise.all(client.guilds.cache.array().map(async(guild) => {
     const x = await checkGuildPermissionAndLeave(guild);
 
@@ -335,12 +334,12 @@ async function handleMessage(msg, ignoreBot) {
 
   let config = await getGuildConfig(msg.guild)
   const featureStrings = [...categories.core, ...config.loadedFeatures];
-  
+
   if(msg.content.trim() === '<@' + msg.client.user.id + '>' || msg.content.trim() === '<@!' + msg.client.user.id + '>') {
     msg.channel.send(`Auto's prefix is **${config.prefix}**`);
     return;
   }
-  
+
   if(msg.content.trim().startsWith(config.prefix)) {
     const content = msg.content.trim().slice(config.prefix.length).trim();
     featureStrings.forEach((name) => {
@@ -412,7 +411,7 @@ async function handleMessage(msg, ignoreBot) {
 client.on('message', handleMessage);
 
 function getGuildFromObject(x) {
-  return x 
+  return x
     ? x.guild && x.guild
       || x.message && x.message.guild && x.message.guild
     : null;
@@ -435,7 +434,7 @@ function eventHandler(evName) {
         const feature = features[name];
         feature.otherEventHandlers[evName] && feature.otherEventHandlers[evName].forEach(x => {
           const handlers = x.concat();
-    
+
           const event = {
             client,
             config,
@@ -446,7 +445,7 @@ function eventHandler(evName) {
             loopback: x => handleMessage(x, true),
             next
           };
-        
+
           function next(...args) {
             const x = handlers.shift()
             x && x(event, ...args);

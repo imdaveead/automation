@@ -19,14 +19,14 @@ CommandHandler(
   // Prefix Stuff
   SubCommand(/^(p|prefix) (.{1,64})$/, Shift1, ({ msg, config, writeConfig }, prefix) => {
     config.prefix = prefix;
-    msg.channel.send(`Automation's prefix is now **${prefix}**`);
+    msg.channel.send(`My prefix is now **${prefix}**`);
     writeConfig();
   }),
   SubCommand(/^(p|prefix) .{65,}$/, Shift1, ({ msg }) => {
     msg.channel.send(`**Error**: Prefix may not be longer than 64 characters.`);
   }),
   SubCommand(/^p|prefix$/, ({ msg, config }) => {
-    msg.channel.send(`Automation's prefix is **${config.prefix}**`);
+    msg.channel.send(`My prefix is **${config.prefix}**`);
   }),
   // Features
   SubCommand(/^(features?|f)$/, Shift1, ({ msg, config, featureData: {features, categories} }) => {
@@ -102,7 +102,7 @@ CommandHandler(
       } else if (features[feature]) {
         func(feature);
       } else if (feature === '*' || feature === 'all') {
-        Object.keys(features).forEach(x => (change === '+' ? add : remove)(x));
+        Object.keys(features).filter(x => !categories.core.includes(x)).forEach(x => (change === '+' ? add : remove)(x));
       }
     });
 
@@ -144,7 +144,7 @@ function configPropertyToString(configProp, val) {
 
 CommandHandler(/^(config|cfg|c)$/, RequiresAdmin, ({ msg, config, getConfig, featureData }) => {
   msg.channel.send([
-    `**AutoBot Configuration**`,
+    `**autobot Configuration**`,
     `__[how to configure]__`,
     `- \`${config.prefix}config\` help. (aliases: cfg, c)`,
     `- \`${config.prefix}config features ...\` features menu. (alias: f)`,

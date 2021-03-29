@@ -29,6 +29,8 @@ const rawEmojiList = {
   bill_deadly_lazer: '743372585437364326',
 
   // billwurtz
+  bill_damien_arms_yay: '766073764608999455',
+  bill_ok_sure: '766073840853581866',
   bill_no: '766073825523007498',
   bill_no_hotewig: '766073830564691980',
   bill_no_dont: '766081617235148821',
@@ -40,16 +42,21 @@ const rawEmojiList = {
   bill_mail_bird: '766097186353315872',
   bill_believability_bob: '766097114631372830',
   bill_paddle_game: '766073855923060757',
+  bill_bye: '766073744493772830',
+  bill_bye_japan: '766073739317739601',
+  bill_talking_pento: '766097258693263360',
+  bill_breakfast: '766081506270511116',
   clock_rotate: '766097135707619338',
 }
 
-const mappedEmoji = Object.fromEntries(Object.keys(rawEmojiList).map((key) => 
+const mappedEmoji = Object.fromEntries(Object.keys(rawEmojiList).map((key) =>
   [
     key,
     client.guilds.cache.array().map(guild =>
       guild.emojis.cache.find(emoji => emoji.id === rawEmojiList[key])
     ).find(Boolean) || (() => {
       console.log('Could not find emoji ' + key + ' (' + rawEmojiList[key] + ')')
+      return client.guilds.cache.get('775338764159287313').emojis.cache.find(emoji => emoji.id === '779359501584433173');
     })()
   ]
 ))

@@ -12,35 +12,51 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+// rng [int] [int]
 CommandHandler(/^rng\s*([0-9]+)?\s*([0-9]+)?$/, ({ msg }, a, b) => {
   const low = (b === undefined ? 1 : parseInt(a))
   const hi = (b === undefined ? (a !== undefined ? parseInt(a) : 100 ) : parseInt(b))
   msg.channel.send(`\`=${getRandomInt(low, hi)}\``);
 });
+// rng <float> [float|int]
 CommandHandler(/^rng\s*([0-9]*\.[0-9]+)\s*([0-9]*\.?[0-9]+)?$/, ({ msg }, a, b) => {
   const low = (b === undefined ? 0 : parseFloat(a))
   const hi = (b === undefined ? (a !== undefined ? parseFloat(a) : 1 ) : parseFloat(b))
   msg.channel.send(`\`=${getRandomFloat(low, hi)}\``);
 });
+// rng <int> [float|int]
 CommandHandler(/^rng\s*([0-9]+)\s*([0-9]*\.[0-9]+)$/, ({ msg }, a, b) => {
   const low = (b === undefined ? 0 : parseFloat(a))
   const hi = (b === undefined ? (a !== undefined ? parseFloat(a) : 1 ) : parseFloat(b))
   msg.channel.send(`\`=${getRandomFloat(low, hi)}\``);
 });
-CommandHandler(/^sack\s*((.|\n)*)$/, ({ msg }, sackContents) => {
+
+const sackMessages = {
+  pick: {
+    empty: `Wow, look at all those options you gave me. Separate items with , or [newline]`,
+    one: `I need more things to pick from! Separate items with , or [newline]`,
+    success: (what) => `You pulled **${what.trim()}** out of the sack.`
+  },
+  sack: {
+    empty: `You pulled nothing out of the sack. The sack was empty. Separate sack items with , or [newline]`,
+    one: `The sack needs more things. Separate the sack items with , or [newline]`,
+    success: (what) => `You pulled **${what.trim()}** out of the sack.`
+  }
+}
+// sack [...]
+CommandHandler(/^(sack|pick)\s*((.|\n)*)$/, ({ msg }, name, sackContents) => {
   const sackItems = sackContents.split(/\n|,/);
+
   if(sackItems.length === 1 && sackItems[0].trim() === '') {
-    msg.channel.send(`You pulled nothing out of the sack. The sack was empty.`);
+    msg.channel.send(sackMessages[name].empty);
   } else if(sackItems.length === 1) {
-    msg.channel.send(`The sack needs more things. Separate the sack items with , or [newline]`);
+    msg.channel.send(sackItems[name].one);
   } else {
-    let x;
-    if (x = sackItems.find(x => x.toLowerCase().trim() === 'ellissa')) {
-      msg.channel.send(`You pulled **${x.trim()}** out of the sack.`);
-    } else {
-      const sackResult = randomOf(sackItems);
-      msg.channel.send(`You pulled **${sackResult.trim()}** out of the sack.`);
+    let result = sackItems.find(x => x.toLowerCase().trim() === 'ellissa');
+    if (!result) {
+      result = randomOf(sackItems);
     }
+    msg.channel.send(sackMessages[name].success(sackResult));
   }
 });
 CommandHandler(/^shuffle\s*((.|\n)*)$/, ({ msg }, sackContents) => {
@@ -80,8 +96,8 @@ CommandHandler(/^uuid1$/, ({ msg }) => {
 });
 
 DocCommand({
-  usage: 'rng [min] [max]',
-  desc: 'Generates a random number, defaults to integer between 1 and 100, but you can customize the range and type.',
+  usage: 'rng [bound] [bound]',
+  desc: 'Generates a random number, defaults to integer between 1 and 100, but you can customize the bounds and types.',
   examples: [
     'rng',
     'rng 1000',
@@ -96,7 +112,7 @@ DocCommand({
   desc: 'Flips a coin. Heads or Tails'
 })
 DocCommand({
-  usage: 'uuid[version]',
+  usage: 'uuid<1,4>',
   desc: 'Generates a uuid. You can do either version 1 (timestamp) or 4 (random).',
   examples: [
     'uuid',

@@ -1,7 +1,25 @@
 require('auto-api');
 
-const { replaceMessage } = require('./replace-lib');
-// const { replaceMessage } = requireFeature('replace-lib', () => require('./replace-lib'));
+async function replaceMessage(msg, replacementText) {
+  // find/create webhook
+  let autoHook = (await msg.channel.fetchWebhooks()).find(hook => hook.name === 'AUTO');
+  if (!autoHook) {
+    try {
+      autoHook = await msg.channel.createWebhook('AUTO');
+    } catch (err) {
+      return err
+    };
+  }
+
+  // send and delete at same time
+  await Promise.all([
+    autoHook.send(replacementText, {
+      username: msg.member.displayName,
+      avatarUrl: msg.author.displayAvatarURL({ format: 'png' }), // discord.js v12
+    }),
+    msg.delete().catch(() => {}),
+  ]);
+}
 
 const fetch = require('node-fetch');
 const { join: joinPaths } = require('path');
@@ -25,7 +43,7 @@ async function findFile(name, extensions) {
   let file = cache.get(name);
   if (file === 'nul') return false; // if cache returns null than no file exists
   if ((extensions.length > 1 && file) || extensions[0] === file) return `https://davecode.me/other/${name}.${file}`;
-  
+
   extensions.push('nul'); // add null so we can catch if all extensions failed
   for (let extension of extensions) {
     file = `https://davecode.me/other/${name}.${extension}`;
@@ -36,7 +54,7 @@ async function findFile(name, extensions) {
       if ((await fetch(file, { method: 'HEAD' })).ok) break; // if status < 400 than file exists
     }
   }
-  
+
   // add name to cache with found extension but only if no extension was specified
   if (extensions.length > 2) cache.set(name, file.substr(-3, 3));
   return (file.endsWith('nul')) ? false:file; // if nul extension that means we didn't find a file so return false
@@ -59,3 +77,8 @@ GlobalMessageHandler(async ({ msg }) => {
     )
   }
 });
+
+DocMisc({
+  name: ';filename;',
+  desc: 're-sends your message with an other video in it\'s place'
+})

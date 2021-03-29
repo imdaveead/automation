@@ -25,7 +25,7 @@ function mathCommand(msg, expression, quietMode) {
 
   const cache = channelCache.get(id) || { ans: 0 };
   channelCache.set(id, cache);
-  
+
   const cacheBefore = { ...cache };
 
   let result
@@ -80,4 +80,8 @@ DocCommand({
     'math 2 + 2',
     'math x = 4; x*3 + (x^2)*4',
   ]
+});
+DocMisc({
+  name: '=<math expression>',
+  desc: 'you can send any math expression with an equals at the start to evaluate it.'
 });
