@@ -126,8 +126,8 @@ FeatureAllowed((guild) => {
 const getConfig = Config({
   questionChannel: {
     type: 'channel',
-    default: '811806632606171156',
-    // default: '661561881160450060',
+    //default: '811806632606171156',
+    default: '661561881160450060',
     desc: 'Where to send questions.'
   },
 });
@@ -137,6 +137,8 @@ const allowedUsers = [
   '587633666071592980', // broochycat
   '469126234345832460', // timmy
   '430551674533314580', // gee
+  '141812200074510336', // levi
+  '166315539524747266', // raf
 ];
 const ONE_HOUR = 3600 * 1000;
 

@@ -17,6 +17,8 @@ const hardWhitelistedGuilds = [
   "453211769423265802", // nerd squad
   "755117849848053930", // Holden's
   "403966971147845636", // bkly server
+  "366510359370137610", // r/billwurtz
+  "738747595438030888", // Clembs
 
   // emotes
   "766071798357295124", // emote server 1
@@ -24,10 +26,6 @@ const hardWhitelistedGuilds = [
   "743828368931291146", // broom closet
   "779169028907991072", // broom closet
   "730936788444512296", // more smilie spots
-
-  // Servers I am not in but agreeing to run auto in.
-  "366510359370137610", // r/billwurtz
-  "738747595438030888", // CRBT
 ];
 // cspell:enable
 
@@ -210,8 +208,8 @@ function getDefaultChannel(guild) {
 
 function updateActivity() {
   client.user.setActivity({
-    name: `over ${client.guilds.cache.size} guilds ;)`,
-    type: 'WATCHING',
+    name: `with you`,
+    type: 'PLAYING',
   });
 }
 
@@ -287,10 +285,7 @@ async function checkGuildPermissionAndLeave(guild) {
 client.on('ready', async() => {
   console.log(`Logged in as ${client.user.tag}`);
 
-  client.user.setActivity({
-    name: `with you all. it's fun ^-^`,
-    type: 'PLAYING',
-  });
+  updateActivity();
 
   global.Emotes = require('./emoji').mappedEmoji;
 
