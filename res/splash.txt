@@ -1,0 +1,45 @@
+my name is auto.
+auto is alive.
+auto, at your service.
+listening in on your slash commands.
+oh, of course I'm online.
+hello.
+hello!
+is this thing on?
+hello, {name}.
+woa-woah it's {name}!
+{name}, i hope you're ready for some stats.
+how has your day been, {name}?
+*pings the ball to {name}*
+I am ready.
+ready for your inquiries.
+ready up.
+auto, here to serve the humans.
+*misses ping*, don't worry, I got you some stats...
+what's up.
+yes, I am here.
+working as intended.
+operational.
+functioning.
+ponging away.
+knock knock, who's there? auto!
+knock knock, who's there? me!
+*hits the ping pong ball right back at ya*
+*pings*
+*winks*
+!!! hey there.
+!!! woah I didn't see you there.
+you're looking nice today.
+auto, glad to serve you.
+don't worry, I'm still here.
+yes, I love you too.
+my day is fine, thanks for asking
+what did the bot say to the user? pong!
+maybe I am not a bot, I forgot.
+Dave warned me about you, {name}.
+welcome.
+you are welcome.
+right here.
+right here, as always.
+don't worry, I won't leave you.
+you look nice today.

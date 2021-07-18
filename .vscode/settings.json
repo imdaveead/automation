@@ -1,9 +1,38 @@
 {
-  "cSpell.words": [
-    "Leaderboard",
-    "billwurtz",
-    "davecode",
-    "emotiguy",
-    "wurtz"
-  ]
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.formatOnSave": true,
+  "files.exclude": {
+    "**/.DS_Store": false,
+    "**/.eslintignore": false,
+    "**/.git": false,
+    "**/.gitignore": false,
+    "**/.hg": false,
+    "**/.husky": false,
+    "**/.prettier{rc,ignore}": false,
+    "**/.svn": false,
+    "**/.vscode": false,
+    "**/CVS": false,
+    "**/node_modules": false,
+    "**/package-lock.json": false,
+    "**/tsconfig.json": false
+  },
+  "editor.tabSize": 2,
+  "workspace.isHidden": false
 }

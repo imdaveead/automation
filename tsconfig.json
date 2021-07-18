@@ -1,19 +1,8 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es2016",
-    "jsx": "preserve",
-    "sourceMap": true,
-    "allowJs": true,
-    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "downlevelIteration": true,
+    "lib": ["ESNext"]
   },
-  "typeAcquisition": {
-    "include": [
-      "src/api.ts"
-    ]
-  },
-  "exclude": [
-    "node_modules",
-    "**/node_modules/*"
-  ]
+  "include": ["src", "autobot.d.ts"]
 }
